@@ -245,7 +245,7 @@ def get_all_rows():
 
     return items
 
-@app.get('/domain_table/{domain_id}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_table/domain_id/{domain_id}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
 def get_a_row_by_domain_id(domain_id:int):
     items=db.query(impactour_models.Domain_Class).filter(impactour_models.Domain_Class.id==domain_id).all()
     if not items:
@@ -253,9 +253,9 @@ def get_a_row_by_domain_id(domain_id:int):
 
     return items
 
-@app.get('/domain_table/{name}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
-def get_a_row_by_name(name:str):
-    item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==func.lower(name)).all()
+@app.get('/domain_table/domain_name/{domain_name}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
+def get_a_row_by_domain_name(domain_name:str):
+    item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==func.lower(domain_name)).all()
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Domain Not Found")
     return item
