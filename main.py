@@ -78,7 +78,7 @@ app = FastAPI(
 )
 
 origins = [
-    "https://impactour.azurewebsites.net/","https://impactour.azurewebsites.net/*","https://impactour.azurewebsites.net","*"
+    "https://impactour.azurewebsites.net/","https://impactour.azurewebsites.net/*","https://impactour.azurewebsites.net","*","https://localhost:9000"
 ]
 
 app.add_middleware(
