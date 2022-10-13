@@ -7,6 +7,8 @@ from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy import and_ , func
+from fastapi.middleware.cors import CORSMiddleware
+
 
 tags_metadata = [
     {
@@ -73,6 +75,18 @@ app = FastAPI(
     #     "name": "Fastapi 0.85.0",
     #     "url": "https://fastapi.tiangolo.com/release-notes/",
     # },
+)
+
+origins = [
+    "https://impactour.azurewebsites.net/",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class Excel_domain_data_Class(BaseModel):
