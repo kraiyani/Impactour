@@ -411,17 +411,18 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
     # with open(file_location, "wb+") as file_object:
     #     file_object.write(upload_file.file.read())
 
-    xls = ExcelFile(tmp)
-    df = xls.parse(xls.sheet_names[0])
-    df = df.drop(df.columns[[0,1]],axis = 1)
-    #df = df.fillna(method='ffill')
-    #df = df.fillna('')
-    df_value_1 = df[df['VALUE 1'].notna()]
-    df_value_2 = df[df['VALUE 2'].notna()]
-    df_value_1 = df_value_1.fillna('')
-    df_value_2 = df_value_2.fillna('')
-
-    return {"Number of Record added" : entry}
+    try:
+        xls = ExcelFile(tmp)
+        df = xls.parse(xls.sheet_names[0])
+        df = df.drop(df.columns[[0,1]],axis = 1)
+        #df = df.fillna(method='ffill')
+        #df = df.fillna('')
+        df_value_1 = df[df['VALUE 1'].notna()]
+        df_value_2 = df[df['VALUE 2'].notna()]
+        df_value_1 = df_value_1.fillna('')
+        df_value_2 = df_value_2.fillna('')
+    except Exception as e:
+        raise e
 
     for index, row in df_value_1.iterrows():
 
