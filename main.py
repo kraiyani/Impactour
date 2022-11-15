@@ -1,4 +1,4 @@
-from fastapi import FastAPI,status,HTTPException
+from fastapi import FastAPI,status,HTTPException, UploadFile, File
 from pydantic import BaseModel
 from typing import Optional,List
 from impactour_database import SessionLocal
@@ -8,7 +8,9 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy import and_ , func
 from fastapi.middleware.cors import CORSMiddleware
-
+import pandas as pd
+from pandas import ExcelFile
+import numpy as np
 
 tags_metadata = [
     {
@@ -259,7 +261,7 @@ def get_all_rows():
 
     return items
 
-@app.get('/domain_table/domain_id/{domain_id}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_table/{domain_id}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
 def get_a_row_by_domain_id(domain_id:int):
     items=db.query(impactour_models.Domain_Class).filter(impactour_models.Domain_Class.id==domain_id).all()
     if not items:
@@ -267,9 +269,9 @@ def get_a_row_by_domain_id(domain_id:int):
 
     return items
 
-@app.get('/domain_table/domain_name/{domain_name}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
-def get_a_row_by_domain_name(domain_name:str):
-    item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==func.lower(domain_name)).all()
+@app.get('/domain_table/{name}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
+def get_a_row_by_name(name:str):
+    item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==func.lower(name)).all()
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Domain Not Found")
     return item
@@ -394,6 +396,242 @@ def delete_one_domain_data_row(id:int):
 
     return item_to_delete
 
+@app.post('/domain_data_table_upload_file',tags=["Domain_Data_Table"],status_code=status.HTTP_201_CREATED)
+def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: UploadFile = File(...)):
+    
+    entry = 0
+
+    file_location = f"/home/kashyap/Downloads/Six_Template_Excel_File_2set_data_field/temp/{upload_file.filename}"
+    with open(file_location, "wb+") as file_object:
+        file_object.write(upload_file.file.read())
+
+    xls = ExcelFile(file_location)
+    df = xls.parse(xls.sheet_names[0])
+    df = df.drop(df.columns[[0,1]],axis = 1)
+    #df = df.fillna(method='ffill')
+    #df = df.fillna('')
+    df_value_1 = df[df['VALUE 1'].notna()]
+    df_value_2 = df[df['VALUE 2'].notna()]
+    df_value_1 = df_value_1.fillna('')
+    df_value_2 = df_value_2.fillna('')
+
+    for index, row in df_value_1.iterrows():
+
+        new_empty_object = impactour_models.Domain_data_Class()
+
+        domain_list = db.query(impactour_models.Domain_Class.domain_name).all()
+        domain_name = ""
+        for domain in domain_list:
+            domain = (str(domain)).lower()
+            domain = domain.replace('(','')
+            domain = domain.replace(')','')
+            domain = domain.replace(',','')
+            domain = domain.replace("'","")
+            file_name = (str(upload_file.filename)).lower()
+            if domain in file_name:
+                domain_name = domain
+
+        db_item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==domain_name).first()
+        if not db_item:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Domain Not Found")
+        else:
+            new_empty_object.domain_id = db_item.id
+
+        db_item=db.query(impactour_models.Pilot_Class).filter(func.lower(impactour_models.Pilot_Class.pilot_name)==(pilot_name).lower()).first()
+        if not db_item:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Pilot Not Found")
+        else:
+            new_empty_object.pilot_id = db_item.id
+
+        INDICATOR_val =  row["INDICATOR"]
+        if INDICATOR_val == 'Pilot Name':
+            continue
+
+        INDICATOR_CODE_val = row["CODE"]
+        VALUE_1_val = row["VALUE 1"]
+        REFERENCE_DATE_1_val = row["REFERENCE DATE 1"]
+        DATA_SOURCE_1 = row["DATA SOURCE 1"]
+        DATA_PRIVACY_val = row["DATA PRIVACY"]
+        REMARKS_val = row["REMARKS"]
+
+        db_item_name=db.query(impactour_models.Indicator_Class).filter(func.lower(impactour_models.Indicator_Class.indicator_name)==(INDICATOR_val).lower()).first()
+
+        if not db_item_name:
+            db_item_code=db.query(impactour_models.Indicator_Class).filter(and_(func.lower(impactour_models.Indicator_Class.indicator_code)==(INDICATOR_CODE_val).lower()),
+                    (impactour_models.Indicator_Class.indicator_type)==str(VALUE_1_val)).first()
+
+            if not db_item_code:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Indicator Not Found")
+            else:
+                new_empty_object.indicator_id = db_item_code.id
+        else:
+            new_empty_object.indicator_id = db_item_name.id
+        
+        if DATA_PRIVACY_val.lower() == 'public':
+            new_empty_object.data_access_type_id = 1
+        elif DATA_PRIVACY_val.lower() == 'private':
+            new_empty_object.data_access_type_id = 2
+        else:
+            new_empty_object.data_access_type_id = 3
+
+        db_item=db.query(impactour_models.Domain_data_Class).filter(and_(
+        impactour_models.Domain_data_Class.reference_time==REFERENCE_DATE_1_val,
+        impactour_models.Domain_data_Class.result==VALUE_1_val,
+        impactour_models.Domain_data_Class.pilot_id==new_empty_object.pilot_id,
+        impactour_models.Domain_data_Class.indicator_id==new_empty_object.indicator_id,
+        impactour_models.Domain_data_Class.domain_id==new_empty_object.domain_id
+        )).first()
+
+        if db_item:
+            continue
+            raise HTTPException(status_code=400,detail="Item already exists with same result and reference time")
+
+        
+        db_item=db.query(impactour_models.Domain_data_Class).filter(and_(
+        REFERENCE_DATE_1_val=="",
+        impactour_models.Domain_data_Class.result==VALUE_1_val,
+        impactour_models.Domain_data_Class.pilot_id==new_empty_object.pilot_id,
+        impactour_models.Domain_data_Class.indicator_id==new_empty_object.indicator_id,
+        impactour_models.Domain_data_Class.domain_id==new_empty_object.domain_id
+        )).first()
+
+        if db_item:
+            continue
+            raise HTTPException(status_code=400,detail="Item already exists with same result, please provide reference time")
+
+        max_id=db.query(impactour_models.Domain_data_Class.id).order_by(impactour_models.Domain_data_Class.id.desc()).first()
+        
+        if not max_id:
+            new_empty_object.id = 1
+        else:
+            new_empty_object.id = max_id.id+1
+        
+        new_empty_object.data_type_id = 1
+        new_empty_object.result = VALUE_1_val
+        new_empty_object.reference_time = REFERENCE_DATE_1_val
+        new_empty_object.sources = DATA_SOURCE_1
+        new_empty_object.remarks = REMARKS_val
+        new_empty_object.attribute_1 = ""
+        new_empty_object.attribute_2 = ""
+        new_empty_object.attribute_3 = ""
+        new_empty_object.created_by = created_by
+        new_empty_object.created_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        new_empty_object.modified_by = 0
+        #new_empty_object.modified_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        db.add(new_empty_object)
+        db.commit()
+        entry += 1
+
+    for index, row in df_value_2.iterrows():
+
+        new_empty_object = impactour_models.Domain_data_Class()
+
+        domain_list = db.query(impactour_models.Domain_Class.domain_name).all()
+        domain_name = ""
+        for domain in domain_list:
+            domain = (str(domain)).lower()
+            domain = domain.replace('(','')
+            domain = domain.replace(')','')
+            domain = domain.replace(',','')
+            domain = domain.replace("'","")
+            file_name = (str(upload_file.filename)).lower()
+            if domain in file_name:
+                domain_name = domain
+
+        db_item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==domain_name).first()
+        if not db_item:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Domain Not Found")
+        else:
+            new_empty_object.domain_id = db_item.id
+
+        db_item=db.query(impactour_models.Pilot_Class).filter(func.lower(impactour_models.Pilot_Class.pilot_name)==(pilot_name).lower()).first()
+        if not db_item:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Pilot Not Found")
+        else:
+            new_empty_object.pilot_id = db_item.id
+
+        INDICATOR_val =  row["INDICATOR"]
+        if INDICATOR_val == 'Pilot Name':
+            continue
+
+        INDICATOR_CODE_val = row["CODE"]
+        VALUE_2_val = row["VALUE 2"]
+        REFERENCE_DATE_2_val = row["REFERENCE DATE 2"]
+        DATA_SOURCE_2 = row["DATA SOURCE 2"]
+        DATA_PRIVACY_val = row["DATA PRIVACY"]
+        REMARKS_val = row["REMARKS"]
+
+        db_item_name=db.query(impactour_models.Indicator_Class).filter(func.lower(impactour_models.Indicator_Class.indicator_name)==(INDICATOR_val).lower()).first()
+
+        if not db_item_name:
+            db_item_code=db.query(impactour_models.Indicator_Class).filter(and_(func.lower(impactour_models.Indicator_Class.indicator_code)==(INDICATOR_CODE_val).lower()),
+                    (impactour_models.Indicator_Class.indicator_type)==str(VALUE_2_val)).first()
+
+            if not db_item_code:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Indicator Not Found")
+            else:
+                new_empty_object.indicator_id = db_item_code.id
+        else:
+            new_empty_object.indicator_id = db_item_name.id
+        
+        if DATA_PRIVACY_val.lower() == 'public':
+            new_empty_object.data_access_type_id = 1
+        elif DATA_PRIVACY_val.lower() == 'private':
+            new_empty_object.data_access_type_id = 2
+        else:
+            new_empty_object.data_access_type_id = 3
+
+        db_item=db.query(impactour_models.Domain_data_Class).filter(and_(
+        impactour_models.Domain_data_Class.reference_time==REFERENCE_DATE_2_val,
+        impactour_models.Domain_data_Class.result==VALUE_2_val,
+        impactour_models.Domain_data_Class.pilot_id==new_empty_object.pilot_id,
+        impactour_models.Domain_data_Class.indicator_id==new_empty_object.indicator_id,
+        impactour_models.Domain_data_Class.domain_id==new_empty_object.domain_id
+        )).first()
+
+        if db_item:
+            continue
+            raise HTTPException(status_code=400,detail="Item already exists with same result and reference time")
+
+        db_item=db.query(impactour_models.Domain_data_Class).filter(and_(
+        REFERENCE_DATE_2_val=="",
+        impactour_models.Domain_data_Class.result==VALUE_2_val,
+        impactour_models.Domain_data_Class.pilot_id==new_empty_object.pilot_id,
+        impactour_models.Domain_data_Class.indicator_id==new_empty_object.indicator_id,
+        impactour_models.Domain_data_Class.domain_id==new_empty_object.domain_id
+        )).first()
+
+        if db_item:
+            continue
+            raise HTTPException(status_code=400,detail="Item already exists with same result, please provide reference time")
+
+        max_id=db.query(impactour_models.Domain_data_Class.id).order_by(impactour_models.Domain_data_Class.id.desc()).first()
+
+        if not max_id:
+            new_empty_object.id = 1
+        else:
+            new_empty_object.id = max_id.id+1
+        
+        new_empty_object.data_type_id = 1
+        new_empty_object.result = VALUE_2_val
+        new_empty_object.reference_time = REFERENCE_DATE_2_val
+        new_empty_object.sources = DATA_SOURCE_2
+        new_empty_object.remarks = REMARKS_val
+        new_empty_object.attribute_1 = ""
+        new_empty_object.attribute_2 = ""
+        new_empty_object.attribute_3 = ""
+        new_empty_object.created_by = created_by
+        new_empty_object.created_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        new_empty_object.modified_by = 0
+        #new_empty_object.modified_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        db.add(new_empty_object)
+        db.commit()
+        entry += 1
+
+    return {"Number of Record added" : entry}
+
 @app.post('/domain_data_table',response_model=Domain_data_Class,tags=["Domain_Data_Table"],status_code=status.HTTP_201_CREATED)
 def create_a_domain_data(domain_data_table_item:Excel_domain_data_Class):
 
@@ -446,9 +684,9 @@ def create_a_domain_data(domain_data_table_item:Excel_domain_data_Class):
         raise HTTPException(status_code=400,detail="Item already exists with same result, please provide reference time")
 
     
-    all_items=db.query(impactour_models.Domain_data_Class).all()
-
-    new_empty_object.id = len(all_items)+1
+    max_id=db.query(impactour_models.Domain_data_Class.id).order_by(impactour_models.Domain_data_Class.id.desc()).first()
+        
+    new_empty_object.id = max_id.id+1
     new_empty_object.data_type_id = 1
     new_empty_object.result = domain_data_table_item.result
     new_empty_object.reference_time = domain_data_table_item.reference_time
