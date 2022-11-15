@@ -401,7 +401,7 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
     
     entry = 0
 
-    file_location = f"/home/kashyap/Downloads/Six_Template_Excel_File_2set_data_field/temp/{upload_file.filename}"
+    file_location = f".{upload_file.filename}"
     with open(file_location, "wb+") as file_object:
         file_object.write(upload_file.file.read())
 
@@ -427,7 +427,7 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
             domain = domain.replace(')','')
             domain = domain.replace(',','')
             domain = domain.replace("'","")
-            file_name = (str(upload_file.filename)).lower()
+            file_name = ((str(upload_file.filename)).lower()).replace("Characterisation","Characterization")
             if domain in file_name:
                 domain_name = domain
 
