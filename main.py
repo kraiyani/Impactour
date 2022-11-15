@@ -402,7 +402,10 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
     
     entry = 0
     tmp = tempfile.NamedTemporaryFile(delete=False)
-    tmp.write(upload_file.file.read())
+    try:
+        tmp.write(upload_file.file.read())
+    except Exception as e:
+        raise e
 
     # file_location = f".{upload_file.filename}"
     # with open(file_location, "wb+") as file_object:
