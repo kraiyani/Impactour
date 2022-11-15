@@ -406,7 +406,6 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
         tmp.write(upload_file.file.read())
     except Exception as e:
         raise e
-    return {"Number of Record added" : entry}
 
     # file_location = f".{upload_file.filename}"
     # with open(file_location, "wb+") as file_object:
@@ -421,6 +420,8 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
     df_value_2 = df[df['VALUE 2'].notna()]
     df_value_1 = df_value_1.fillna('')
     df_value_2 = df_value_2.fillna('')
+
+    return {"Number of Record added" : entry}
 
     for index, row in df_value_1.iterrows():
 
