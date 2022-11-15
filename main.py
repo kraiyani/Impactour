@@ -406,6 +406,7 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
         tmp.write(upload_file.file.read())
     except Exception as e:
         raise e
+    return {"Number of Record added" : entry}
 
     # file_location = f".{upload_file.filename}"
     # with open(file_location, "wb+") as file_object:
@@ -636,6 +637,8 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
         db.commit()
         entry += 1
 
+    tmp.close()
+    os.unlink(tmp.name)
     return {"Number of Record added" : entry}
 
 @app.post('/domain_data_table',response_model=Domain_data_Class,tags=["Domain_Data_Table"],status_code=status.HTTP_201_CREATED)
