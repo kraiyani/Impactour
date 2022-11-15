@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from pandas import ExcelFile
 import numpy as np
+import os, tempfile
 
 tags_metadata = [
     {
@@ -400,12 +401,14 @@ def delete_one_domain_data_row(id:int):
 def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: UploadFile = File(...)):
     
     entry = 0
+    tmp = tempfile.NamedTemporaryFile(delete=False)
+    tmp.write(upload_file.file.read())
 
-    file_location = f".{upload_file.filename}"
-    with open(file_location, "wb+") as file_object:
-        file_object.write(upload_file.file.read())
+    # file_location = f".{upload_file.filename}"
+    # with open(file_location, "wb+") as file_object:
+    #     file_object.write(upload_file.file.read())
 
-    xls = ExcelFile(file_location)
+    xls = ExcelFile(tmp)
     df = xls.parse(xls.sheet_names[0])
     df = df.drop(df.columns[[0,1]],axis = 1)
     #df = df.fillna(method='ffill')
