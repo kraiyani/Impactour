@@ -398,9 +398,10 @@ def delete_one_domain_data_row(id:int):
     return item_to_delete
 
 @app.post('/domain_data_table_upload_file',tags=["Domain_Data_Table"],status_code=status.HTTP_201_CREATED)
-def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: UploadFile = File(...)):
+def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:int,upload_file: UploadFile = File(...)):
     
     entry = 0
+    domain_name = domain_name.lower()
     tmp = tempfile.NamedTemporaryFile(delete=False)
     try:
         tmp.write(upload_file.file.read())
@@ -428,17 +429,17 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
 
         new_empty_object = impactour_models.Domain_data_Class()
 
-        domain_list = db.query(impactour_models.Domain_Class.domain_name).all()
-        domain_name = ""
-        for domain in domain_list:
-            domain = (str(domain)).lower()
-            domain = domain.replace('(','')
-            domain = domain.replace(')','')
-            domain = domain.replace(',','')
-            domain = domain.replace("'","")
-            file_name = ((str(upload_file.filename)).lower()).replace("Characterisation","Characterization")
-            if domain in file_name:
-                domain_name = domain
+        # domain_list = db.query(impactour_models.Domain_Class.domain_name).all()
+        # domain_name = ""
+        # for domain in domain_list:
+        #     domain = (str(domain)).lower()
+        #     domain = domain.replace('(','')
+        #     domain = domain.replace(')','')
+        #     domain = domain.replace(',','')
+        #     domain = domain.replace("'","")
+        #     file_name = ((str(upload_file.filename)).lower()).replace("Characterisation","Characterization")
+        #     if domain in file_name:
+        #         domain_name = domain
 
         db_item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==domain_name).first()
         if not db_item:
@@ -536,17 +537,17 @@ def create_a_domain_data_using_file(pilot_name:str,created_by:int,upload_file: U
 
         new_empty_object = impactour_models.Domain_data_Class()
 
-        domain_list = db.query(impactour_models.Domain_Class.domain_name).all()
-        domain_name = ""
-        for domain in domain_list:
-            domain = (str(domain)).lower()
-            domain = domain.replace('(','')
-            domain = domain.replace(')','')
-            domain = domain.replace(',','')
-            domain = domain.replace("'","")
-            file_name = (str(upload_file.filename)).lower()
-            if domain in file_name:
-                domain_name = domain
+        # domain_list = db.query(impactour_models.Domain_Class.domain_name).all()
+        # domain_name = ""
+        # for domain in domain_list:
+        #     domain = (str(domain)).lower()
+        #     domain = domain.replace('(','')
+        #     domain = domain.replace(')','')
+        #     domain = domain.replace(',','')
+        #     domain = domain.replace("'","")
+        #     file_name = (str(upload_file.filename)).lower()
+        #     if domain in file_name:
+        #         domain_name = domain
 
         db_item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==domain_name).first()
         if not db_item:
