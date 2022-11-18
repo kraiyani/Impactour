@@ -47,6 +47,10 @@ tags_metadata = [
         "name": "KPI_Indicator_Table",
         "description": "A table where mapping of KPI and Indicator is present.",
     },
+    {
+        "name": "DSS",
+        "description": "A tables where you can find different componenets of DSS modules.",
+    },
 ]
 
 description = """
@@ -243,6 +247,218 @@ class KPI_indicator_Class(BaseModel):
     class Config:
         orm_mode=True
 
+class Site_Class(BaseModel): #serializer
+
+    id : int
+    site_code : str
+    site_name : str
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+
+class Cultural_activity_Class(BaseModel): #serializer
+
+    id : int
+    activity_code : str
+    activity_type : str
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Cultural_tourism_impact_Class(BaseModel): #serializer
+
+    id : int
+    impact_code : str
+    impact_option : str
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Cultural_tourism_objective_Class(BaseModel): #serializer
+
+    id : int
+    objective_code : str
+    objective_name : str
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Strategy_Class(BaseModel): #serializer
+
+    id : int
+    strategy_code : str
+    strategy_name : str
+    strategy_value: str
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+
+class Strategy_site_Class(BaseModel): #serializer
+
+    id : int
+    strategy_id : int
+    site_id : int
+    value: float
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Strategy_cultural_activity_Class(BaseModel): #serializer
+
+    id : int
+    strategy_id : int
+    cultural_activity_id : int
+    value: float
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Strategy_cultural_tourism_impact_Class(BaseModel): #serializer
+
+    id : int
+    strategy_id : int
+    cultural_tourism_impact_id : int
+    value: float
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Strategy_cultural_tourism_objective_Class(BaseModel): #serializer
+
+    id : int
+    strategy_id : int
+    cultural_tourism_objective_id : int
+    value: float
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Strategy_domain_Class(BaseModel): #serializer
+
+    id : int
+    strategy_id : int
+    domain_id : int
+    value: float
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Action_Class(BaseModel): #serializer
+
+    id : int
+    strategy_id : int
+    action_name : str
+    action_code: str
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Action_kpi_Class(BaseModel): #serializer
+
+    id : int
+    action_id : int
+    kpi_id : int
+    value: float
+    attribute_1 : Optional[str] = ...
+    attribute_2 : Optional[str] = ...
+    attribute_3 : Optional[str] = ...
+    created_by : int
+    created_date : datetime
+    modified_by : Optional[int] = ...
+    modified_date : Optional[datetime] = ...
+
+    class Config:
+        orm_mode=True
+
+class Get_DSS_input_Class(BaseModel):
+    site_name: str
+    cultral_activity_name: str
+    cultral_tourism_impact_name: str
+    cultral_tourism_objective_name: str
+    cultral_tourism_domain_name: str
+
+    class Config:
+        orm_mode=True
+
 db=SessionLocal()
 
 #landing endpoint
@@ -270,7 +486,7 @@ def get_a_row_by_domain_id(domain_id:int):
 
     return items
 
-@app.get('/domain_table/{name}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_table/by_name/{name}',response_model=List[Domain_Class],tags=["Domain_Table"],status_code=status.HTTP_200_OK)
 def get_a_row_by_name(name:str):
     item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==func.lower(name)).all()
     if not item:
@@ -1016,26 +1232,394 @@ def get_all_rows():
 
     return items
 
+##############################
+#DSS endpoints
+##############################
+
+# Site Type
+
+@app.get('/dss/site_types_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_all_site_types_names():
+    items=db.query(impactour_models.Site_Class).order_by(impactour_models.Site_Class.id.asc()).all()
+    return items
+
+@app.get('/dss/site_types_names/{site_id}',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_a_site_type_by_site_id(site_id:int):
+    items=db.query(impactour_models.Site_Class).filter(impactour_models.Site_Class.id==site_id).all()
+    if not items:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site Type Not Found")
+    return items
+
+# Culteral Activity
+
+@app.get('/dss/culteral_activity_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_all_culteral_activity_names():
+    items=db.query(impactour_models.Cultural_activity_Class).all()
+    return items
+
+# Culteral Tourism Impact
+
+@app.get('/dss/culteral_tourism_impact_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_all_culteral_tourism_impact_names():
+    items=db.query(impactour_models.Cultural_tourism_impact_Class).all()
+    return items
+
+# Culteral Tourism Objective
+
+@app.get('/dss/objective_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_all_objective_names():
+    items=db.query(impactour_models.Cultural_tourism_objective_Class).all()
+    return items
+
+# Domain names
+
+@app.get('/dss/important_domain_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_all_important_domain_names():
+    filter_ids = [3, 4, 5, 6]
+    items=db.query(impactour_models.Domain_Class).filter(impactour_models.Domain_Class.id.in_(filter_ids)).all()
+    return items
+
+# Culteral Tourism Action
+
+@app.get('/dss/action_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_all_action_names():
+    items=db.query(impactour_models.Action_Class).all()
+    return items
+
+# Culteral Tourism Strategy
+
+@app.get('/dss/strategy_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_all_strategy_names():
+    items=db.query(impactour_models.Strategy_Class).all()
+    return items
+
+@app.post('/dss/strategy_list_by_DSS',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input_Class,dss_row_3:Get_DSS_input_Class):
+    
+    row_1_SN = (dss_row_1.site_name).lower()
+    row_1_CAN = (dss_row_1.cultral_activity_name).lower()
+    row_1_CTIN = (dss_row_1.cultral_tourism_impact_name).lower()
+    row_1_CTON = (dss_row_1.cultral_tourism_objective_name).lower()
+    row_1_CTDN = (dss_row_1.cultral_tourism_domain_name).lower()
+    
+    row_1_strategy_objective_val = []
+    row_1_strategy_impact_val = []
+    row_1_strategy_activity_val = []
+    row_1_strategy_site_val = []
+    row_1_strategy_domain_val = []
+    
+    if row_1_SN != "":
+
+        # Site
+        SN_id = db.query(impactour_models.Site_Class).filter(func.lower(impactour_models.Site_Class.site_name)==row_1_SN).first()
+        if not SN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site 1 Not Found") 
+        site_strategy_items = db.query(impactour_models.Strategy_site_Class).filter(impactour_models.Strategy_site_Class.site_id == SN_id.id).order_by(impactour_models.Strategy_site_Class.strategy_id.asc()).all()
+        for site_strategy_val in site_strategy_items:
+            row_1_strategy_site_val.append(site_strategy_val.value)
+
+        # Cultral Activity
+        CAN_id = db.query(impactour_models.Cultural_activity_Class).filter(func.lower(impactour_models.Cultural_activity_Class.activity_type)==row_1_CAN).first()
+        if not CAN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Activity Not Found") 
+        activity_strategy_items = db.query(impactour_models.Strategy_cultural_activity_Class).filter(impactour_models.Strategy_cultural_activity_Class.cultural_activity_id == CAN_id.id).order_by(impactour_models.Strategy_cultural_activity_Class.strategy_id.asc()).all()
+        for activity_strategy_val in activity_strategy_items:
+            row_1_strategy_activity_val.append(activity_strategy_val.value)
+
+        # Cultral Impact
+        CTIN_id = db.query(impactour_models.Cultural_tourism_impact_Class).filter(func.lower(impactour_models.Cultural_tourism_impact_Class.impact_option)==row_1_CTIN).first()
+        if not CTIN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Impact Not Found") 
+        impact_strategy_items = db.query(impactour_models.Strategy_cultural_tourism_impact_Class).filter(impactour_models.Strategy_cultural_tourism_impact_Class.cultural_tourism_impact_id == CTIN_id.id).order_by(impactour_models.Strategy_cultural_tourism_impact_Class.strategy_id.asc()).all()
+        for impact_strategy_val in impact_strategy_items:
+            row_1_strategy_impact_val.append(impact_strategy_val.value)
+
+        # Cultral Objective
+        CTON_id = db.query(impactour_models.Cultural_tourism_objective_Class).filter(func.lower(impactour_models.Cultural_tourism_objective_Class.objective_name)==row_1_CTON).first()
+        if not CTON_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Objective Not Found") 
+        objective_strategy_items = db.query(impactour_models.Strategy_cultural_tourism_objective_Class).filter(impactour_models.Strategy_cultural_tourism_objective_Class.cultural_tourism_objective_id == CTON_id.id).order_by(impactour_models.Strategy_cultural_tourism_objective_Class.strategy_id.asc()).all()
+        for objective_strategy_val in objective_strategy_items:
+            row_1_strategy_objective_val.append(objective_strategy_val.value)
+
+        # Cultral Domain
+        CTDN_id = db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==row_1_CTDN).first()
+        if not CTON_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Objective Not Found") 
+        domain_strategy_items = db.query(impactour_models.Strategy_domain_Class).filter(impactour_models.Strategy_domain_Class.domain_id == CTDN_id.id).order_by(impactour_models.Strategy_domain_Class.strategy_id.asc()).all()
+        for domain_strategy_val in domain_strategy_items:
+            row_1_strategy_domain_val.append(domain_strategy_val.value)
+
+    row_2_SN = (dss_row_2.site_name).lower()
+    row_2_CAN = (dss_row_2.cultral_activity_name).lower()
+    row_2_CTIN = (dss_row_2.cultral_tourism_impact_name).lower()
+    row_2_CTON = (dss_row_2.cultral_tourism_objective_name).lower()
+    row_2_CTDN = (dss_row_2.cultral_tourism_domain_name).lower()
+    
+    row_2_strategy_objective_val = []
+    row_2_strategy_impact_val = []
+    row_2_strategy_activity_val = []
+    row_2_strategy_site_val = []
+    row_2_strategy_domain_val = []
+    
+    if row_2_SN != "":
+
+        # Site
+        SN_id = db.query(impactour_models.Site_Class).filter(func.lower(impactour_models.Site_Class.site_name)==row_2_SN).first()
+        if not SN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site 2 Not Found") 
+        site_strategy_items = db.query(impactour_models.Strategy_site_Class).filter(impactour_models.Strategy_site_Class.site_id == SN_id.id).order_by(impactour_models.Strategy_site_Class.strategy_id.asc()).all()
+        for site_strategy_val in site_strategy_items:
+            row_2_strategy_site_val.append(site_strategy_val.value)
+
+        # Cultral Activity
+        CAN_id = db.query(impactour_models.Cultural_activity_Class).filter(func.lower(impactour_models.Cultural_activity_Class.activity_type)==row_2_CAN).first()
+        if not CAN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Activity Not Found") 
+        activity_strategy_items = db.query(impactour_models.Strategy_cultural_activity_Class).filter(impactour_models.Strategy_cultural_activity_Class.cultural_activity_id == CAN_id.id).order_by(impactour_models.Strategy_cultural_activity_Class.strategy_id.asc()).all()
+        for activity_strategy_val in activity_strategy_items:
+            row_2_strategy_activity_val.append(activity_strategy_val.value)
+
+        # Cultral Impact
+        CTIN_id = db.query(impactour_models.Cultural_tourism_impact_Class).filter(func.lower(impactour_models.Cultural_tourism_impact_Class.impact_option)==row_2_CTIN).first()
+        if not CTIN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Impact Not Found") 
+        impact_strategy_items = db.query(impactour_models.Strategy_cultural_tourism_impact_Class).filter(impactour_models.Strategy_cultural_tourism_impact_Class.cultural_tourism_impact_id == CTIN_id.id).order_by(impactour_models.Strategy_cultural_tourism_impact_Class.strategy_id.asc()).all()
+        for impact_strategy_val in impact_strategy_items:
+            row_2_strategy_impact_val.append(impact_strategy_val.value)
+
+        # Cultral Objective
+        CTON_id = db.query(impactour_models.Cultural_tourism_objective_Class).filter(func.lower(impactour_models.Cultural_tourism_objective_Class.objective_name)==row_2_CTON).first()
+        if not CTON_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Objective Not Found") 
+        objective_strategy_items = db.query(impactour_models.Strategy_cultural_tourism_objective_Class).filter(impactour_models.Strategy_cultural_tourism_objective_Class.cultural_tourism_objective_id == CTON_id.id).order_by(impactour_models.Strategy_cultural_tourism_objective_Class.strategy_id.asc()).all()
+        for objective_strategy_val in objective_strategy_items:
+            row_2_strategy_objective_val.append(objective_strategy_val.value)
+
+        # Cultral Domain
+        CTDN_id = db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==row_2_CTDN).first()
+        if not CTON_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Objective Not Found") 
+        domain_strategy_items = db.query(impactour_models.Strategy_domain_Class).filter(impactour_models.Strategy_domain_Class.domain_id == CTDN_id.id).order_by(impactour_models.Strategy_domain_Class.strategy_id.asc()).all()
+        for domain_strategy_val in domain_strategy_items:
+            row_2_strategy_domain_val.append(domain_strategy_val.value)
+
+    row_3_SN = (dss_row_3.site_name).lower()
+    row_3_CAN = (dss_row_3.cultral_activity_name).lower()
+    row_3_CTIN = (dss_row_3.cultral_tourism_impact_name).lower()
+    row_3_CTON = (dss_row_3.cultral_tourism_objective_name).lower()
+    row_3_CTDN = (dss_row_3.cultral_tourism_domain_name).lower()
+    
+    row_3_strategy_objective_val = []
+    row_3_strategy_impact_val = []
+    row_3_strategy_activity_val = []
+    row_3_strategy_site_val = []
+    row_3_strategy_domain_val = []
+    
+    if row_3_SN != "":
+
+        # Site
+        SN_id = db.query(impactour_models.Site_Class).filter(func.lower(impactour_models.Site_Class.site_name)==row_3_SN).first()
+        if not SN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site 3 Not Found") 
+        site_strategy_items = db.query(impactour_models.Strategy_site_Class).filter(impactour_models.Strategy_site_Class.site_id == SN_id.id).order_by(impactour_models.Strategy_site_Class.strategy_id.asc()).all()
+        for site_strategy_val in site_strategy_items:
+            row_3_strategy_site_val.append(site_strategy_val.value)
+
+        # Cultral Activity
+        CAN_id = db.query(impactour_models.Cultural_activity_Class).filter(func.lower(impactour_models.Cultural_activity_Class.activity_type)==row_3_CAN).first()
+        if not CAN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Activity Not Found") 
+        activity_strategy_items = db.query(impactour_models.Strategy_cultural_activity_Class).filter(impactour_models.Strategy_cultural_activity_Class.cultural_activity_id == CAN_id.id).order_by(impactour_models.Strategy_cultural_activity_Class.strategy_id.asc()).all()
+        for activity_strategy_val in activity_strategy_items:
+            row_3_strategy_activity_val.append(activity_strategy_val.value)
+
+        # Cultral Impact
+        CTIN_id = db.query(impactour_models.Cultural_tourism_impact_Class).filter(func.lower(impactour_models.Cultural_tourism_impact_Class.impact_option)==row_3_CTIN).first()
+        if not CTIN_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Impact Not Found") 
+        impact_strategy_items = db.query(impactour_models.Strategy_cultural_tourism_impact_Class).filter(impactour_models.Strategy_cultural_tourism_impact_Class.cultural_tourism_impact_id == CTIN_id.id).order_by(impactour_models.Strategy_cultural_tourism_impact_Class.strategy_id.asc()).all()
+        for impact_strategy_val in impact_strategy_items:
+            row_3_strategy_impact_val.append(impact_strategy_val.value)
+
+        # Cultral Objective
+        CTON_id = db.query(impactour_models.Cultural_tourism_objective_Class).filter(func.lower(impactour_models.Cultural_tourism_objective_Class.objective_name)==row_3_CTON).first()
+        if not CTON_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Objective Not Found") 
+        objective_strategy_items = db.query(impactour_models.Strategy_cultural_tourism_objective_Class).filter(impactour_models.Strategy_cultural_tourism_objective_Class.cultural_tourism_objective_id == CTON_id.id).order_by(impactour_models.Strategy_cultural_tourism_objective_Class.strategy_id.asc()).all()
+        for objective_strategy_val in objective_strategy_items:
+            row_3_strategy_objective_val.append(objective_strategy_val.value)
+
+        # Cultral Domain
+        CTDN_id = db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==row_3_CTDN).first()
+        if not CTON_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Objective Not Found") 
+        domain_strategy_items = db.query(impactour_models.Strategy_domain_Class).filter(impactour_models.Strategy_domain_Class.domain_id == CTDN_id.id).order_by(impactour_models.Strategy_domain_Class.strategy_id.asc()).all()
+        for domain_strategy_val in domain_strategy_items:
+            row_3_strategy_domain_val.append(domain_strategy_val.value)
+
+    if (row_1_SN != "") and (row_2_SN != "") and (row_3_SN != ""):
+        impact_min = []
+        activity_avg = []
+        domain_avg = []
+
+        for row_1,row_2,row_3 in zip(row_1_strategy_impact_val,row_2_strategy_impact_val,row_3_strategy_impact_val):
+            impact_min.append(np.min([row_1,row_2,row_3]))
+
+        for row_1,row_2,row_3 in zip(row_1_strategy_activity_val,row_2_strategy_activity_val,row_3_strategy_activity_val):
+            activity_avg.append(np.average([row_1,row_2,row_3]))
+
+        for row_1,row_2,row_3 in zip(row_1_strategy_domain_val,row_2_strategy_domain_val,row_3_strategy_domain_val):
+            domain_avg.append(np.average([row_1,row_2,row_3]))
+
+        row_1_st_score_a = []
+        row_1_st_score_b = []
+
+        for row_1_cto,row_1_site,row_1_impact_min,row_1_act_avg,row_1_domain_avg in zip(row_1_strategy_objective_val, row_1_strategy_site_val, impact_min,activity_avg,domain_avg):
+            val_1 = row_1_cto * ((row_1_act_avg + row_1_site) * row_1_impact_min)
+            row_1_st_score_a.append(val_1)
+            val_2 = val_1 * row_1_domain_avg
+            row_1_st_score_b.append(val_2)
+
+        row_2_st_score_a = []
+        row_2_st_score_b = []
+
+        for row_2_cto,row_2_site,row_2_impact_min,row_2_act_avg,row_2_domain_avg in zip(row_2_strategy_objective_val, row_2_strategy_site_val, impact_min,activity_avg,domain_avg):
+            val_2 = row_2_cto * ((row_2_act_avg + row_2_site) * row_2_impact_min)
+            row_2_st_score_a.append(val_2)
+            val_2 = val_2 * row_2_domain_avg
+            row_2_st_score_b.append(val_2)
+
+        row_3_st_score_a = []
+        row_3_st_score_b = []
+
+        for row_3_cto,row_3_site,row_3_impact_min,row_3_act_avg,row_3_domain_avg in zip(row_3_strategy_objective_val, row_3_strategy_site_val, impact_min,activity_avg,domain_avg):
+            val_3 = row_3_cto * ((row_3_act_avg + row_3_site) * row_3_impact_min)
+            row_3_st_score_a.append(val_3)
+            val_3 = val_3 * row_3_domain_avg
+            row_3_st_score_b.append(val_3)
+
+        row_final_score = []
+        for row_1_b,row_2_b,row_3_b in zip(row_1_st_score_b,row_2_st_score_b,row_3_st_score_b):
+            row_final_score.append(np.max([row_1_b,row_2_b,row_3_b]))
+
+        strategy_new_object = db.query(impactour_models.Strategy_Class).order_by(impactour_models.Strategy_Class.id).all()
+
+        for row_final_score_val,att1 in zip(row_final_score,strategy_new_object):
+            att1.attribute_1 = row_final_score_val
+        
+        #final_strategy = strategy_new_object.order_by(float(strategy_new_object.attribute_1).desc()).all()
+
+    if (row_1_SN != "") and (row_2_SN != "") and (row_3_SN == ""):
+        impact_min = []
+        activity_avg = []
+        domain_avg = []
+
+        for row_1,row_2 in zip(row_1_strategy_impact_val,row_2_strategy_impact_val):
+            impact_min.append(np.min([row_1,row_2]))
+
+        for row_1,row_2 in zip(row_1_strategy_activity_val,row_2_strategy_activity_val):
+            activity_avg.append(np.average([row_1,row_2]))
+
+        for row_1,row_2 in zip(row_1_strategy_domain_val,row_2_strategy_domain_val):
+            domain_avg.append(np.average([row_1,row_2]))
+
+        row_1_st_score_a = []
+        row_1_st_score_b = []
+
+        for row_1_cto,row_1_site,row_1_impact_min,row_1_act_avg,row_1_domain_avg in zip(row_1_strategy_objective_val, row_1_strategy_site_val, impact_min,activity_avg,domain_avg):
+            val_1 = row_1_cto * ((row_1_act_avg + row_1_site) * row_1_impact_min)
+            row_1_st_score_a.append(val_1)
+            val_2 = val_1 * row_1_domain_avg
+            row_1_st_score_b.append(val_2)
+
+        row_2_st_score_a = []
+        row_2_st_score_b = []
+
+        for row_2_cto,row_2_site,row_2_impact_min,row_2_act_avg,row_2_domain_avg in zip(row_2_strategy_objective_val, row_2_strategy_site_val, impact_min,activity_avg,domain_avg):
+            val_2 = row_2_cto * ((row_2_act_avg + row_2_site) * row_2_impact_min)
+            row_2_st_score_a.append(val_2)
+            val_2 = val_2 * row_2_domain_avg
+            row_2_st_score_b.append(val_2)
 
 
+        row_final_score = []
+        for row_1_b,row_2_b in zip(row_1_st_score_b,row_2_st_score_b):
+            row_final_score.append(np.max([row_1_b,row_2_b]))
 
-# @app.post('/items',response_model=Item,
-#         status_code=status.HTTP_201_CREATED)
-# def create_an_item(item:Item):
-#     db_item=db.query(models.Item).filter(models.Item.name==item.name).first()
+        strategy_new_object = db.query(impactour_models.Strategy_Class).order_by(impactour_models.Strategy_Class.id).all()
 
-#     if db_item is not None:
-#         raise HTTPException(status_code=400,detail="Item already exists")
+        for row_final_score_val,att1 in zip(row_final_score,strategy_new_object):
+            att1.attribute_1 = row_final_score_val
+    
+    if (row_1_SN != "") and (row_2_SN == "") and (row_3_SN == ""):
+        impact_min = []
+        activity_avg = []
+        domain_avg = []
 
-#     new_item=models.Item(
-#         name=item.name,
-#         price=item.price,
-#         description=item.description,
-#         on_offer=item.on_offer
-#     )
+        for row_1 in row_1_strategy_impact_val:
+            impact_min.append(row_1)
 
-#     db.add(new_item)
-#     db.commit()
+        for row_1 in row_1_strategy_activity_val:
+            activity_avg.append(row_1)
 
-#     return new_item
+        for row_1 in row_1_strategy_domain_val:
+            domain_avg.append(row_1)
 
+        row_1_st_score_a = []
+        row_1_st_score_b = []
+
+        for row_1_cto,row_1_site,row_1_impact_min,row_1_act_avg,row_1_domain_avg in zip(row_1_strategy_objective_val, row_1_strategy_site_val, impact_min,activity_avg,domain_avg):
+            val_1 = row_1_cto * ((row_1_act_avg + row_1_site) * row_1_impact_min)
+            row_1_st_score_a.append(val_1)
+            val_2 = val_1 * row_1_domain_avg
+            row_1_st_score_b.append(val_2)
+
+        row_final_score = []
+        for row_1_b in row_1_st_score_b:
+            row_final_score.append(row_1_b)
+
+        strategy_new_object = db.query(impactour_models.Strategy_Class).order_by(impactour_models.Strategy_Class.id).all()
+
+        for row_final_score_val,att1 in zip(row_final_score,strategy_new_object):
+            att1.attribute_1 = row_final_score_val
+
+
+        #final_strategy = strategy_new_object.order_by(float(strategy_new_object.attribute_1).desc()).all()
+
+        
+    return strategy_new_object
+
+@app.get('/dss/get_action_list_by_strategy_id',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_action_list_by_strategy_id(strategy_id_1:int, strategy_id_2:int, strategy_id_3:int):
+    
+    filter_ids = [strategy_id_1, strategy_id_2, strategy_id_3]
+    actions_by_strategy_id=db.query(impactour_models.Action_Class).filter(impactour_models.Action_Class.strategy_id.in_(filter_ids)).all()
+    
+    return actions_by_strategy_id
+
+@app.get('/dss/get_kpi_list_by_action_id',tags=["DSS"],status_code=status.HTTP_200_OK)
+def get_action_list_by_strategy_id(action_id_1:int, action_id_2:int, action_id_3:int):
+    
+    filter_ids = [action_id_1, action_id_2, action_id_3]
+
+    kpis_by_action_id=db.query(impactour_models.Action_kpi_Class).filter(and_(
+        impactour_models.Action_kpi_Class.action_id.in_(filter_ids),
+        impactour_models.Action_kpi_Class.value != 0)).order_by(impactour_models.Action_kpi_Class.value.desc()).all()
+    
+    kpi_filter_id = []
+
+    for kpis in kpis_by_action_id:
+        kpi_filter_id.append(kpis.kpi_id)
+
+    kpi_new_object = db.query(impactour_models.KPI_Class).filter(impactour_models.KPI_Class.id.in_(kpi_filter_id)).all()
+
+    for kpis_by_action,kpi_new_object_name in zip(kpis_by_action_id,kpi_new_object):
+        kpis_by_action.attribute_1 = kpi_new_object_name.kpi_name
+
+    kpi_cal_items = db.query(impactour_models.KPI_calculation_Class).filter(impactour_models.KPI_calculation_Class.kpi_id.in_(kpi_filter_id)).all()
+
+    for kpis_by_action,kpi_cal_val in zip(kpis_by_action_id,kpi_cal_items):
+        kpis_by_action.attribute_2 = kpi_cal_val.calculated_value
+
+    return kpis_by_action_id
