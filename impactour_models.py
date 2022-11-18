@@ -22,6 +22,7 @@ class Domain_Class(Base):
     domain_data_domains = relationship('Domain_data_Class', backref='Domain_Class')
     kpi_domains = relationship('KPI_Class', backref='Domain_Class')
     kpi_calculation_domains = relationship('KPI_calculation_Class', backref='Domain_Class')
+    strategy_domain_relation = relationship('Strategy_domain_Class', backref='Domain_Class')
 
 
 class Pilot_Class(Base):
@@ -148,6 +149,7 @@ class KPI_Class(Base):
 
     kpi_calculation_kpis = relationship('KPI_calculation_Class', backref='KPI_Class')
     kpi_indicator_kpis = relationship('KPI_indicator_Class', backref='KPI_Class')
+    action_kpi_relation_kpi_id = relationship('Action_kpi_Class', backref='KPI_Class')
 
 
 class KPI_calculation_Class(Base):
@@ -176,6 +178,212 @@ class KPI_indicator_Class(Base):
     kpi_id = Column(Integer, ForeignKey("kpi.id"))
     indicator_id = Column(Integer, ForeignKey("indicator.id"))
     data_code = Column(String(10), nullable=True)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+class Site_Class(Base):
+
+    __tablename__='site'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    site_code = Column(String(10), nullable=False)
+    site_name = Column(String(500), nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+    strategy_site_relation_site_id = relationship('Strategy_site_Class', backref='Site_Class')
+
+class Cultural_activity_Class(Base):
+
+    __tablename__='cultural_activity'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    activity_code = Column(String(10), nullable=False)
+    activity_type = Column(String(500), nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+    strategy_cultural_activity_relation_cultural_activity_id = relationship('Strategy_cultural_activity_Class', backref='Cultural_activity_Class')
+
+class Cultural_tourism_impact_Class(Base):
+
+    __tablename__='cultural_tourism_impact'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    impact_code = Column(String(10), nullable=False)
+    impact_option = Column(String(500), nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+    strategy_cultural_tourism_impact_relation_cultural_impact_id = relationship('Strategy_cultural_tourism_impact_Class', backref='Cultural_tourism_impact_Class')
+
+class Cultural_tourism_objective_Class(Base):
+
+    __tablename__='cultural_tourism_objective'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    objective_code = Column(String(10), nullable=False)
+    objective_name = Column(String(500), nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+    strategy_cultural_tourism_objective_relation_cultural_tourism_objective_id = relationship('Strategy_cultural_tourism_objective_Class', backref='Cultural_tourism_objective_Class')
+
+class Strategy_Class(Base):
+
+    __tablename__='strategy'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    strategy_code = Column(String(10), nullable=False)
+    strategy_name = Column(String(500), nullable=False)
+    strategy_value = Column(String(500), nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+    strategy_site_relation_strategy_id = relationship('Strategy_site_Class', backref='Strategy_Class')
+    strategy_cultural_activity_relation_strategy_id = relationship('Strategy_cultural_activity_Class', backref='Strategy_Class')
+    strategy_cultural_tourism_impact_relation_strategy_id = relationship('Strategy_cultural_tourism_impact_Class', backref='Strategy_Class')
+    strategy_cultural_tourism_objective_relation_strategy_id = relationship('Strategy_cultural_tourism_objective_Class', backref='Strategy_Class')
+    strategy_domain_relation_strategy_id = relationship('Strategy_domain_Class', backref='Strategy_Class')
+    action_relation_strategy_id = relationship('Action_Class', backref='Strategy_Class')
+
+
+class Strategy_site_Class(Base):
+
+    __tablename__='strategy_site'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    strategy_id = Column(Integer, ForeignKey('strategy.id'))
+    site_id = Column(Integer, ForeignKey('site.id'))
+    value = Column(Float, nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+class Strategy_cultural_activity_Class(Base):
+
+    __tablename__='strategy_cultural_activity'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    strategy_id = Column(Integer, ForeignKey('strategy.id'))
+    cultural_activity_id = Column(Integer, ForeignKey('cultural_activity.id'))
+    value = Column(Float, nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+class Strategy_cultural_tourism_impact_Class(Base):
+
+    __tablename__='strategy_cultural_tourism_impact'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    strategy_id = Column(Integer, ForeignKey('strategy.id'))
+    cultural_tourism_impact_id = Column(Integer, ForeignKey('cultural_tourism_impact.id'))
+    value = Column(Float, nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+class Strategy_cultural_tourism_objective_Class(Base):
+
+    __tablename__='strategy_cultural_tourism_objective'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    strategy_id = Column(Integer, ForeignKey('strategy.id'))
+    cultural_tourism_objective_id = Column(Integer, ForeignKey('cultural_tourism_objective.id'))
+    value = Column(Float, nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+class Strategy_domain_Class(Base):
+
+    __tablename__='strategy_domain'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    strategy_id = Column(Integer, ForeignKey('strategy.id'))
+    domain_id = Column(Integer, ForeignKey('domain.id'))
+    value = Column(Float, nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+class Action_Class(Base):
+
+    __tablename__='action'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    strategy_id = Column(Integer, ForeignKey('strategy.id'))
+    action_name = Column(String(500), nullable=False)
+    action_code = Column(String(10), nullable=False)
+    attribute_1 = Column(String(500), nullable=True)
+    attribute_2 = Column(String(500), nullable=True)
+    attribute_3 = Column(String(500), nullable=True)
+    created_by = Column(Integer, nullable = False)
+    created_date = Column(DateTime, nullable = False)
+    modified_by = Column(Integer, nullable = True)
+    modified_date = Column(DateTime, nullable = True)
+
+    action_kpi_relation_action_id = relationship('Action_kpi_Class', backref='Action_Class')
+
+class Action_kpi_Class(Base):
+
+    __tablename__='action_kpi'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    action_id = Column(Integer, ForeignKey('action.id'))
+    kpi_id = Column(Integer, ForeignKey('kpi.id'))
+    value = Column(Float, nullable=False)
     attribute_1 = Column(String(500), nullable=True)
     attribute_2 = Column(String(500), nullable=True)
     attribute_3 = Column(String(500), nullable=True)
