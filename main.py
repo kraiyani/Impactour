@@ -48,7 +48,11 @@ tags_metadata = [
         "description": "A table where mapping of KPI and Indicator is present.",
     },
     {
-        "name": "DSS",
+        "name": "DSS_Filtering",
+        "description": "A tables where you can find different Filtering criteria to feed the DSS modules.",
+    },
+    {
+        "name": "DSS_Outcome",
         "description": "A tables where you can find different componenets of DSS modules.",
     },
 ]
@@ -450,7 +454,6 @@ class Action_kpi_Class(BaseModel): #serializer
         orm_mode=True
 
 class Get_DSS_input_Class(BaseModel):
-    site_name: str
     cultral_activity_name: str
     cultral_tourism_impact_name: str
     cultral_tourism_objective_name: str
@@ -617,6 +620,7 @@ def delete_one_domain_data_row(id:int):
 def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:int,upload_file: UploadFile = File(...)):
     
     entry = 0
+    bad_indicator_name = "Total Population / Total Area based on Type of Site (Urban or Rural/Natural/Itinerary)"
     domain_name = domain_name.lower()
     tmp = tempfile.NamedTemporaryFile(delete=False)
     try:
@@ -632,6 +636,7 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
         xls = ExcelFile(tmp)
         df = xls.parse(xls.sheet_names[0])
         df = df.drop(df.columns[[0,1]],axis = 1)
+        # print(df)
         #df = df.fillna(method='ffill')
         #df = df.fillna('')
         df_value_1 = df[df['VALUE 1'].notna()]
@@ -670,7 +675,7 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
             new_empty_object.pilot_id = db_item.id
 
         INDICATOR_val =  row["INDICATOR"]
-        if INDICATOR_val == 'Pilot Name':
+        if INDICATOR_val == 'Pilot Name' or INDICATOR_val == bad_indicator_name:
             continue
 
         INDICATOR_CODE_val = row["CODE"]
@@ -687,6 +692,11 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
                     (impactour_models.Indicator_Class.indicator_type)==str(VALUE_1_val)).first()
 
             if not db_item_code:
+                # if INDICATOR_val == 'Type of Site (Urban or Rural/Natural)':
+                #     temp_name=db.query(impactour_models.Indicator_Class).filter(func.lower(impactour_models.Indicator_Class.indicator_name)==("Total Population / Total Area based on Type of Site (Urban or Rural/Natural/Itinerary)").lower()).first()
+                #     new_empty_object.indicator_id = temp_name.id
+                # else:
+                    
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Indicator Not Found")
             else:
                 new_empty_object.indicator_id = db_item_code.id
@@ -778,7 +788,7 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
             new_empty_object.pilot_id = db_item.id
 
         INDICATOR_val =  row["INDICATOR"]
-        if INDICATOR_val == 'Pilot Name':
+        if INDICATOR_val == 'Pilot Name' or INDICATOR_val == bad_indicator_name:
             continue
 
         INDICATOR_CODE_val = row["CODE"]
@@ -1238,12 +1248,12 @@ def get_all_rows():
 
 # Site Type
 
-@app.get('/dss/site_types_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_filtering/site_types_names',tags=["DSS_Filtering"],status_code=status.HTTP_200_OK)
 def get_all_site_types_names():
     items=db.query(impactour_models.Site_Class).order_by(impactour_models.Site_Class.id.asc()).all()
     return items
 
-@app.get('/dss/site_types_names/{site_id}',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_filtering/site_types_names/{site_id}',tags=["DSS_Filtering"],status_code=status.HTTP_200_OK)
 def get_a_site_type_by_site_id(site_id:int):
     items=db.query(impactour_models.Site_Class).filter(impactour_models.Site_Class.id==site_id).all()
     if not items:
@@ -1252,28 +1262,28 @@ def get_a_site_type_by_site_id(site_id:int):
 
 # Culteral Activity
 
-@app.get('/dss/culteral_activity_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_filtering/culteral_activity_names',tags=["DSS_Filtering"],status_code=status.HTTP_200_OK)
 def get_all_culteral_activity_names():
     items=db.query(impactour_models.Cultural_activity_Class).all()
     return items
 
 # Culteral Tourism Impact
 
-@app.get('/dss/culteral_tourism_impact_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_filtering/culteral_tourism_impact_names',tags=["DSS_Filtering"],status_code=status.HTTP_200_OK)
 def get_all_culteral_tourism_impact_names():
     items=db.query(impactour_models.Cultural_tourism_impact_Class).all()
     return items
 
 # Culteral Tourism Objective
 
-@app.get('/dss/objective_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_filtering/objective_names',tags=["DSS_Filtering"],status_code=status.HTTP_200_OK)
 def get_all_objective_names():
     items=db.query(impactour_models.Cultural_tourism_objective_Class).all()
     return items
 
 # Domain names
 
-@app.get('/dss/important_domain_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_filtering/important_domain_names',tags=["DSS_Filtering"],status_code=status.HTTP_200_OK)
 def get_all_important_domain_names():
     filter_ids = [3, 4, 5, 6]
     items=db.query(impactour_models.Domain_Class).filter(impactour_models.Domain_Class.id.in_(filter_ids)).all()
@@ -1281,22 +1291,22 @@ def get_all_important_domain_names():
 
 # Culteral Tourism Action
 
-@app.get('/dss/action_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_outcome/action_names',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
 def get_all_action_names():
     items=db.query(impactour_models.Action_Class).all()
     return items
 
 # Culteral Tourism Strategy
 
-@app.get('/dss/strategy_names',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_outcome/strategy_names',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
 def get_all_strategy_names():
     items=db.query(impactour_models.Strategy_Class).all()
     return items
 
-@app.post('/dss/strategy_list_by_DSS',tags=["DSS"],status_code=status.HTTP_200_OK)
-def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input_Class,dss_row_3:Get_DSS_input_Class):
+@app.post('/dss_outcome/strategy_list_by_DSS',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
+def get_all_strategy_names(site_name:str,dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input_Class,dss_row_3:Get_DSS_input_Class):
     
-    row_1_SN = (dss_row_1.site_name).lower()
+    row_1_SN = (site_name).lower()
     row_1_CAN = (dss_row_1.cultral_activity_name).lower()
     row_1_CTIN = (dss_row_1.cultral_tourism_impact_name).lower()
     row_1_CTON = (dss_row_1.cultral_tourism_objective_name).lower()
@@ -1308,12 +1318,12 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
     row_1_strategy_site_val = []
     row_1_strategy_domain_val = []
     
-    if row_1_SN != "":
+    if row_1_CAN != "":
 
         # Site
         SN_id = db.query(impactour_models.Site_Class).filter(func.lower(impactour_models.Site_Class.site_name)==row_1_SN).first()
         if not SN_id:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site 1 Not Found") 
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site Not Found") 
         site_strategy_items = db.query(impactour_models.Strategy_site_Class).filter(impactour_models.Strategy_site_Class.site_id == SN_id.id).order_by(impactour_models.Strategy_site_Class.strategy_id.asc()).all()
         for site_strategy_val in site_strategy_items:
             row_1_strategy_site_val.append(site_strategy_val.value)
@@ -1350,7 +1360,7 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
         for domain_strategy_val in domain_strategy_items:
             row_1_strategy_domain_val.append(domain_strategy_val.value)
 
-    row_2_SN = (dss_row_2.site_name).lower()
+    row_2_SN = (site_name).lower()
     row_2_CAN = (dss_row_2.cultral_activity_name).lower()
     row_2_CTIN = (dss_row_2.cultral_tourism_impact_name).lower()
     row_2_CTON = (dss_row_2.cultral_tourism_objective_name).lower()
@@ -1362,12 +1372,12 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
     row_2_strategy_site_val = []
     row_2_strategy_domain_val = []
     
-    if row_2_SN != "":
+    if row_2_CAN != "":
 
         # Site
         SN_id = db.query(impactour_models.Site_Class).filter(func.lower(impactour_models.Site_Class.site_name)==row_2_SN).first()
         if not SN_id:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site 2 Not Found") 
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site Not Found") 
         site_strategy_items = db.query(impactour_models.Strategy_site_Class).filter(impactour_models.Strategy_site_Class.site_id == SN_id.id).order_by(impactour_models.Strategy_site_Class.strategy_id.asc()).all()
         for site_strategy_val in site_strategy_items:
             row_2_strategy_site_val.append(site_strategy_val.value)
@@ -1404,7 +1414,7 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
         for domain_strategy_val in domain_strategy_items:
             row_2_strategy_domain_val.append(domain_strategy_val.value)
 
-    row_3_SN = (dss_row_3.site_name).lower()
+    row_3_SN = (site_name).lower()
     row_3_CAN = (dss_row_3.cultral_activity_name).lower()
     row_3_CTIN = (dss_row_3.cultral_tourism_impact_name).lower()
     row_3_CTON = (dss_row_3.cultral_tourism_objective_name).lower()
@@ -1416,12 +1426,12 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
     row_3_strategy_site_val = []
     row_3_strategy_domain_val = []
     
-    if row_3_SN != "":
+    if row_3_CAN != "":
 
         # Site
         SN_id = db.query(impactour_models.Site_Class).filter(func.lower(impactour_models.Site_Class.site_name)==row_3_SN).first()
         if not SN_id:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site 3 Not Found") 
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Site Not Found") 
         site_strategy_items = db.query(impactour_models.Strategy_site_Class).filter(impactour_models.Strategy_site_Class.site_id == SN_id.id).order_by(impactour_models.Strategy_site_Class.strategy_id.asc()).all()
         for site_strategy_val in site_strategy_items:
             row_3_strategy_site_val.append(site_strategy_val.value)
@@ -1458,7 +1468,7 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
         for domain_strategy_val in domain_strategy_items:
             row_3_strategy_domain_val.append(domain_strategy_val.value)
 
-    if (row_1_SN != "") and (row_2_SN != "") and (row_3_SN != ""):
+    if (row_1_CAN != "") and (row_2_CAN != "") and (row_3_CAN != ""):
         impact_min = []
         activity_avg = []
         domain_avg = []
@@ -1510,7 +1520,7 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
         
         #final_strategy = strategy_new_object.order_by(float(strategy_new_object.attribute_1).desc()).all()
 
-    if (row_1_SN != "") and (row_2_SN != "") and (row_3_SN == ""):
+    if (row_1_CAN != "") and (row_2_CAN != "") and (row_3_CAN == ""):
         impact_min = []
         activity_avg = []
         domain_avg = []
@@ -1552,7 +1562,7 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
         for row_final_score_val,att1 in zip(row_final_score,strategy_new_object):
             att1.attribute_1 = row_final_score_val
     
-    if (row_1_SN != "") and (row_2_SN == "") and (row_3_SN == ""):
+    if (row_1_CAN != "") and (row_2_CAN == "") and (row_3_CAN == ""):
         impact_min = []
         activity_avg = []
         domain_avg = []
@@ -1590,16 +1600,32 @@ def get_all_strategy_names(dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input
         
     return strategy_new_object
 
-@app.get('/dss/get_action_list_by_strategy_id',tags=["DSS"],status_code=status.HTTP_200_OK)
+@app.get('/dss_outcome/get_action_list_by_strategy_id',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
 def get_action_list_by_strategy_id(strategy_id_1:int, strategy_id_2:int, strategy_id_3:int):
     
     filter_ids = [strategy_id_1, strategy_id_2, strategy_id_3]
-    actions_by_strategy_id=db.query(impactour_models.Action_Class).filter(impactour_models.Action_Class.strategy_id.in_(filter_ids)).all()
-    
+    actions_by_strategy_id = db.query(impactour_models.Action_Class).filter(impactour_models.Action_Class.strategy_id.in_(filter_ids)).all()
+    indicator_length = []
+    for one_action in actions_by_strategy_id:
+
+        kpis_by_action_id = db.query(impactour_models.Action_kpi_Class).filter(and_(
+            impactour_models.Action_kpi_Class.action_id == one_action.id,
+            impactour_models.Action_kpi_Class.value != 0)).order_by(impactour_models.Action_kpi_Class.value.desc()).all()
+
+        kpi_filter_id = []
+        for kpis in kpis_by_action_id:
+            kpi_filter_id.append(kpis.kpi_id)
+        
+        indicator_list = db.query(impactour_models.KPI_indicator_Class).filter(impactour_models.KPI_indicator_Class.kpi_id.in_(kpi_filter_id)).all()
+        indicator_length.append(len(indicator_list))
+
+    for att1,num_val in zip(actions_by_strategy_id,indicator_length):
+        att1.attribute_1 = num_val
+        
     return actions_by_strategy_id
 
-@app.get('/dss/get_kpi_list_by_action_id',tags=["DSS"],status_code=status.HTTP_200_OK)
-def get_action_list_by_strategy_id(action_id_1:int, action_id_2:int, action_id_3:int):
+@app.get('/dss_outcome/get_kpi_list_by_action_id',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
+def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:int, action_id_3:int):
     
     filter_ids = [action_id_1, action_id_2, action_id_3]
 
