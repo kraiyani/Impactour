@@ -1619,8 +1619,8 @@ def get_action_list_by_strategy_id(strategy_id_1:int, strategy_id_2:int, strateg
         indicator_list = db.query(impactour_models.KPI_indicator_Class).filter(impactour_models.KPI_indicator_Class.kpi_id.in_(kpi_filter_id)).all()
         indicator_length.append(len(indicator_list))
 
-    for att1,num_val in zip(actions_by_strategy_id,indicator_length):
-        att1.attribute_1 = num_val
+    # for att1,num_val in zip(actions_by_strategy_id,indicator_length):
+    #     att1.attribute_1 = num_val
         
     return actions_by_strategy_id
 
@@ -1640,12 +1640,12 @@ def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:int, act
 
     kpi_new_object = db.query(impactour_models.KPI_Class).filter(impactour_models.KPI_Class.id.in_(kpi_filter_id)).all()
 
-    for kpis_by_action,kpi_new_object_name in zip(kpis_by_action_id,kpi_new_object):
-        kpis_by_action.attribute_1 = kpi_new_object_name.kpi_name
+    # for kpis_by_action,kpi_new_object_name in zip(kpis_by_action_id,kpi_new_object):
+    #     kpis_by_action.attribute_1 = kpi_new_object_name.kpi_name
 
-    kpi_cal_items = db.query(impactour_models.KPI_calculation_Class).filter(impactour_models.KPI_calculation_Class.kpi_id.in_(kpi_filter_id)).all()
+    # kpi_cal_items = db.query(impactour_models.KPI_calculation_Class).filter(impactour_models.KPI_calculation_Class.kpi_id.in_(kpi_filter_id)).all()
 
-    for kpis_by_action,kpi_cal_val in zip(kpis_by_action_id,kpi_cal_items):
-        kpis_by_action.attribute_2 = kpi_cal_val.calculated_value
+    # for kpis_by_action,kpi_cal_val in zip(kpis_by_action_id,kpi_cal_items):
+    #     kpis_by_action.attribute_2 = kpi_cal_val.calculated_value
 
     return kpis_by_action_id
