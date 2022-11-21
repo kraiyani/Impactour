@@ -559,13 +559,13 @@ def delete_domain(id:int):
 ############################
 #domain_data_table endpoints
 ############################
-@app.get('/domain_data_table',response_model=List[Domain_data_Class],tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_data_table',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_all_rows():
     items=db.query(impactour_models.Domain_data_Class).all()
 
     return items
 
-@app.get('/domain_data_table/indicator_name/{indicator_name}',response_model=List[Domain_data_Class],tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_data_table/indicator_name/{indicator_name}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_rows_by_indicator_name(indicator_name:str):
 
     db_item=db.query(impactour_models.Indicator_Class).filter(func.lower(impactour_models.Indicator_Class.indicator_name)==func.lower(indicator_name)).first()
