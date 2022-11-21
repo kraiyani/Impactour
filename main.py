@@ -686,18 +686,16 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
         REMARKS_val = row["REMARKS"]
 
         db_item_name=db.query(impactour_models.Indicator_Class).filter(func.lower(impactour_models.Indicator_Class.indicator_name)==(INDICATOR_val).lower()).first()
-
         if not db_item_name:
             db_item_code=db.query(impactour_models.Indicator_Class).filter(and_(func.lower(impactour_models.Indicator_Class.indicator_code)==(INDICATOR_CODE_val).lower()),
-                    (impactour_models.Indicator_Class.indicator_type)==str(VALUE_1_val)).first()
-
+                    (impactour_models.Indicator_Class.indicator_type)==str(int(VALUE_1_val))).first()
             if not db_item_code:
                 # if INDICATOR_val == 'Type of Site (Urban or Rural/Natural)':
                 #     temp_name=db.query(impactour_models.Indicator_Class).filter(func.lower(impactour_models.Indicator_Class.indicator_name)==("Total Population / Total Area based on Type of Site (Urban or Rural/Natural/Itinerary)").lower()).first()
                 #     new_empty_object.indicator_id = temp_name.id
                 # else:
-                    
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Indicator Not Found")
+                
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=" asdfg sdf Indicator Not Found")
             else:
                 new_empty_object.indicator_id = db_item_code.id
         else:
@@ -802,10 +800,13 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
 
         if not db_item_name:
             db_item_code=db.query(impactour_models.Indicator_Class).filter(and_(func.lower(impactour_models.Indicator_Class.indicator_code)==(INDICATOR_CODE_val).lower()),
-                    (impactour_models.Indicator_Class.indicator_type)==str(VALUE_2_val)).first()
-
+                    (impactour_models.Indicator_Class.indicator_type)==str(int(VALUE_2_val))).first()
             if not db_item_code:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Indicator Not Found")
+                # if INDICATOR_val == 'Type of Site (Urban or Rural/Natural)':
+                #     temp_name=db.query(impactour_models.Indicator_Class).filter(func.lower(impactour_models.Indicator_Class.indicator_name)==("Total Population / Total Area based on Type of Site (Urban or Rural/Natural/Itinerary)").lower()).first()
+                #     new_empty_object.indicator_id = temp_name.id
+                # else:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=" 2 Indicator Not Found")
             else:
                 new_empty_object.indicator_id = db_item_code.id
         else:
@@ -1304,7 +1305,7 @@ def get_all_strategy_names():
     return items
 
 @app.post('/dss_outcome/strategy_list_by_DSS',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
-def get_all_strategy_names(site_name:str,dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input_Class,dss_row_3:Get_DSS_input_Class):
+def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input_Class,dss_row_3:Get_DSS_input_Class):
     
     row_1_SN = (site_name).lower()
     row_1_CAN = (dss_row_1.cultral_activity_name).lower()
