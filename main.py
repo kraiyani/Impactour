@@ -678,7 +678,7 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
         if INDICATOR_val == 'Pilot Name' or INDICATOR_val == bad_indicator_name:
             continue
 
-        INDICATOR_CODE_val = row["CODE"]
+        INDICATOR_CODE0_val = row["CODE"]
         VALUE_1_val = row["VALUE 1"]
         REFERENCE_DATE_1_val = row["REFERENCE DATE 1"]
         DATA_SOURCE_1 = row["DATA SOURCE 1"]
@@ -1307,7 +1307,7 @@ def get_all_strategy_names():
 @app.post('/dss_outcome/strategy_list_by_DSS',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
 def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_row_2:Get_DSS_input_Class,dss_row_3:Get_DSS_input_Class):
     
-    row_1_SN = (site_name).lower()
+    row_1_SN = (site_type_name).lower()
     row_1_CAN = (dss_row_1.cultral_activity_name).lower()
     row_1_CTIN = (dss_row_1.cultral_tourism_impact_name).lower()
     row_1_CTON = (dss_row_1.cultral_tourism_objective_name).lower()
@@ -1361,7 +1361,7 @@ def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_
         for domain_strategy_val in domain_strategy_items:
             row_1_strategy_domain_val.append(domain_strategy_val.value)
 
-    row_2_SN = (site_name).lower()
+    row_2_SN = (site_type_name).lower()
     row_2_CAN = (dss_row_2.cultral_activity_name).lower()
     row_2_CTIN = (dss_row_2.cultral_tourism_impact_name).lower()
     row_2_CTON = (dss_row_2.cultral_tourism_objective_name).lower()
@@ -1415,7 +1415,7 @@ def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_
         for domain_strategy_val in domain_strategy_items:
             row_2_strategy_domain_val.append(domain_strategy_val.value)
 
-    row_3_SN = (site_name).lower()
+    row_3_SN = (site_type_name).lower()
     row_3_CAN = (dss_row_3.cultral_activity_name).lower()
     row_3_CTIN = (dss_row_3.cultral_tourism_impact_name).lower()
     row_3_CTON = (dss_row_3.cultral_tourism_objective_name).lower()
