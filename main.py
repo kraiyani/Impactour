@@ -89,7 +89,8 @@ app = FastAPI(
 )
 
 origins = [
-    "https://impactour.azurewebsites.net/","https://impactour.azurewebsites.net/*","https://impactour.azurewebsites.net","*","https://localhost:9000"
+    "https://impactour.azurewebsites.net/","https://impactour.azurewebsites.net/*",
+    "https://impactour.azurewebsites.net","*","https://localhost:9000","http://localhost",
 ]
 
 app.add_middleware(
@@ -544,17 +545,17 @@ def update_a_domain(id:int,domain_table_item:Domain_Class):
 
     return item_to_update
 
-@app.delete('/domain_table/{id}',response_model=Domain_Class,tags=["Domain_Table"],status_code=status.HTTP_200_OK)
-def delete_domain(id:int):
-    item_to_delete=db.query(impactour_models.Domain_Class).filter(impactour_models.Domain_Class.id==id).first()
+# @app.delete('/domain_table/{id}',response_model=Domain_Class,tags=["Domain_Table"],status_code=status.HTTP_200_OK)
+# def delete_domain(id:int):
+#     item_to_delete=db.query(impactour_models.Domain_Class).filter(impactour_models.Domain_Class.id==id).first()
 
-    if not item_to_delete:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
+#     if not item_to_delete:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
     
-    db.delete(item_to_delete)
-    db.commit()
+#     db.delete(item_to_delete)
+#     db.commit()
 
-    return item_to_delete
+#     return item_to_delete
 
 ############################
 #domain_data_table endpoints
@@ -576,45 +577,45 @@ def get_rows_by_indicator_name(indicator_name:str):
     
     return items
 
-@app.get('/domain_data_table/pilot_id/{pilot_id}',response_model=List[Domain_data_Class],tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_data_table/pilot_id/{pilot_id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_rows_by_pilot_id(pilot_id:int):
     items=db.query(impactour_models.Domain_data_Class).filter(impactour_models.Domain_data_Class.pilot_id==pilot_id).all()
     if not items:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
     return items
 
-@app.get('/domain_data_table/domain_id/{domain_id}',response_model=List[Domain_data_Class],tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_data_table/domain_id/{domain_id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_rows_by_domain_id(domain_id:int):
     items=db.query(impactour_models.Domain_data_Class).filter(impactour_models.Domain_data_Class.domain_id==domain_id).all()
     if not items:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
     return items
 
-@app.get('/domain_data_table/domain_and_pilot_id/{domain_id}',response_model=List[Domain_data_Class],tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_data_table/domain_and_pilot_id/{domain_id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_rows_by_domain_and_pilot_id(domain_id:int,pilot_id:int):
     items=db.query(impactour_models.Domain_data_Class).filter(and_(impactour_models.Domain_data_Class.domain_id==domain_id,impactour_models.Domain_data_Class.pilot_id==pilot_id)).all()
     if not items:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
     return items
 
-@app.get('/domain_data_table/data_access_type_id/{data_access_type_id}',response_model=List[Domain_data_Class],tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
+@app.get('/domain_data_table/data_access_type_id/{data_access_type_id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_rows_by_data_access_type_id(data_access_type_id:int):
     items=db.query(impactour_models.Domain_data_Class).filter(impactour_models.Domain_data_Class.data_access_type_id==data_access_type_id).all()
     if not items:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
     return items
 
-@app.delete('/domain_data_table/{id}',response_model=Domain_data_Class,tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
-def delete_one_domain_data_row(id:int):
-    item_to_delete=db.query(impactour_models.Domain_data_Class).filter(impactour_models.Domain_data_Class.id==id).first()
+# @app.delete('/domain_data_table/{id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
+# def delete_one_domain_data_row(id:int):
+#     item_to_delete=db.query(impactour_models.Domain_data_Class).filter(impactour_models.Domain_data_Class.id==id).first()
 
-    if not item_to_delete:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
+#     if not item_to_delete:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
     
-    db.delete(item_to_delete)
-    db.commit()
+#     db.delete(item_to_delete)
+#     db.commit()
 
-    return item_to_delete
+#     return item_to_delete
 
 @app.post('/domain_data_table_upload_file',tags=["Domain_Data_Table"],status_code=status.HTTP_201_CREATED)
 def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:int,upload_file: UploadFile = File(...)):
@@ -1012,17 +1013,17 @@ def create_a_kpi(kpi_table_item:KPI_Class):
 
     return new_item
 
-@app.delete('/kpi_table/{id}',response_model=KPI_Class,tags=["KPI_Table"],status_code=status.HTTP_200_OK)
-def delete_kpi(id:int):
-    item_to_delete=db.query(impactour_models.KPI_Class).filter(impactour_models.KPI_Class.id==id).first()
+# @app.delete('/kpi_table/{id}',response_model=KPI_Class,tags=["KPI_Table"],status_code=status.HTTP_200_OK)
+# def delete_kpi(id:int):
+#     item_to_delete=db.query(impactour_models.KPI_Class).filter(impactour_models.KPI_Class.id==id).first()
 
-    if not item_to_delete:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
+#     if not item_to_delete:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
     
-    db.delete(item_to_delete)
-    db.commit()
+#     db.delete(item_to_delete)
+#     db.commit()
 
-    return item_to_delete
+#     return item_to_delete
 
 @app.put('/kpi_table/{id}',response_model=KPI_Class,tags=["KPI_Table"],status_code=status.HTTP_200_OK)
 def update_a_kpi(id:int,kpi_table_item:KPI_Class):
@@ -1166,17 +1167,17 @@ def update_an_indicator(id:int,indicator_table_item:Indicator_Class):
 
     return item_to_update
 
-@app.delete('/indicator_table/{id}',response_model=Indicator_Class,tags=["Indicator_Table"],status_code=status.HTTP_200_OK)
-def delete_indicator(id:int):
-    item_to_delete=db.query(impactour_models.Indicator_Class).filter(impactour_models.Indicator_Class.id==id).first()
+# @app.delete('/indicator_table/{id}',response_model=Indicator_Class,tags=["Indicator_Table"],status_code=status.HTTP_200_OK)
+# def delete_indicator(id:int):
+#     item_to_delete=db.query(impactour_models.Indicator_Class).filter(impactour_models.Indicator_Class.id==id).first()
 
-    if not item_to_delete:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
+#     if not item_to_delete:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
     
-    db.delete(item_to_delete)
-    db.commit()
+#     db.delete(item_to_delete)
+#     db.commit()
 
-    return item_to_delete
+#     return item_to_delete
 
 ######################
 #pilot_table endpoints
@@ -1222,17 +1223,17 @@ def create_a_pilot(pilot_table_item:Pilot_Class):
 
     return new_item
 
-@app.delete('/pilot_table/{id}',response_model=Pilot_Class,tags=["Pilot_Table"],status_code=status.HTTP_200_OK)
-def delete_pilot(id:int):
-    item_to_delete=db.query(impactour_models.Pilot_Class).filter(impactour_models.Pilot_Class.id==id).first()
+# @app.delete('/pilot_table/{id}',response_model=Pilot_Class,tags=["Pilot_Table"],status_code=status.HTTP_200_OK)
+# def delete_pilot(id:int):
+#     item_to_delete=db.query(impactour_models.Pilot_Class).filter(impactour_models.Pilot_Class.id==id).first()
 
-    if not item_to_delete:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Pilot Not Found")
+#     if not item_to_delete:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Pilot Not Found")
     
-    db.delete(item_to_delete)
-    db.commit()
+#     db.delete(item_to_delete)
+#     db.commit()
 
-    return item_to_delete
+#     return item_to_delete
 
 ##############################
 #kpi_indicator_table endpoints
@@ -1602,7 +1603,7 @@ def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_
     return strategy_new_object
 
 @app.get('/dss_outcome/get_action_list_by_strategy_id',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
-def get_action_list_by_strategy_id(strategy_id_1:int, strategy_id_2:int, strategy_id_3:int):
+async def get_action_list_by_strategy_id(strategy_id_1:int, strategy_id_2:int, strategy_id_3:int):
     
     filter_ids = [strategy_id_1, strategy_id_2, strategy_id_3]
     actions_by_strategy_id = db.query(impactour_models.Action_Class).filter(impactour_models.Action_Class.strategy_id.in_(filter_ids)).all()
@@ -1620,13 +1621,13 @@ def get_action_list_by_strategy_id(strategy_id_1:int, strategy_id_2:int, strateg
         indicator_list = db.query(impactour_models.KPI_indicator_Class).filter(impactour_models.KPI_indicator_Class.kpi_id.in_(kpi_filter_id)).all()
         indicator_length.append(len(indicator_list))
 
-    # for att1,num_val in zip(actions_by_strategy_id,indicator_length):
-    #     att1.attribute_1 = num_val
+    for att1,num_val in zip(actions_by_strategy_id,indicator_length):
+        att1.attribute_1 = num_val
         
     return actions_by_strategy_id
 
 @app.get('/dss_outcome/get_kpi_list_by_action_id',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
-def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:int, action_id_3:int):
+async def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:int, action_id_3:int):
     
     filter_ids = [action_id_1, action_id_2, action_id_3]
 
@@ -1641,12 +1642,12 @@ def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:int, act
 
     kpi_new_object = db.query(impactour_models.KPI_Class).filter(impactour_models.KPI_Class.id.in_(kpi_filter_id)).all()
 
-    # for kpis_by_action,kpi_new_object_name in zip(kpis_by_action_id,kpi_new_object):
-    #     kpis_by_action.attribute_1 = kpi_new_object_name.kpi_name
+    for kpis_by_action,kpi_new_object_name in zip(kpis_by_action_id,kpi_new_object):
+        kpis_by_action.attribute_1 = kpi_new_object_name.kpi_name
 
-    # kpi_cal_items = db.query(impactour_models.KPI_calculation_Class).filter(impactour_models.KPI_calculation_Class.kpi_id.in_(kpi_filter_id)).all()
+    kpi_cal_items = db.query(impactour_models.KPI_calculation_Class).filter(impactour_models.KPI_calculation_Class.kpi_id.in_(kpi_filter_id)).all()
 
-    # for kpis_by_action,kpi_cal_val in zip(kpis_by_action_id,kpi_cal_items):
-    #     kpis_by_action.attribute_2 = kpi_cal_val.calculated_value
+    for kpis_by_action,kpi_cal_val in zip(kpis_by_action_id,kpi_cal_items):
+        kpis_by_action.attribute_2 = kpi_cal_val.calculated_value
 
     return kpis_by_action_id
