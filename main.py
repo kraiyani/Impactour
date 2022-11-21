@@ -678,7 +678,7 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
         if INDICATOR_val == 'Pilot Name' or INDICATOR_val == bad_indicator_name:
             continue
 
-        INDICATOR_CODE0_val = row["CODE"]
+        INDICATOR_CODE_val = row["CODE"]
         VALUE_1_val = row["VALUE 1"]
         REFERENCE_DATE_1_val = row["REFERENCE DATE 1"]
         DATA_SOURCE_1 = row["DATA SOURCE 1"]
