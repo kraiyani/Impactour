@@ -596,7 +596,10 @@ async def get_all_values_and_average(pilot_id:int):
         for not_pilot_value in not_pilot_indicator_db:
             not_pilot_value_list.append(not_pilot_value.result)
 
-        average_value = np.round(np.average(not_pilot_value_list),0)
+        if not_pilot_value_list:
+            average_value = np.round(np.average(not_pilot_value_list),0)
+        else:
+            average_value = 0
 
         item_row.attribute_1 = average_value
         item_row.attribute_2 = indicator_name.indicator_name
