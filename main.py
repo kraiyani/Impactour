@@ -6,7 +6,7 @@ import impactour_models
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlalchemy import and_ , func
+from sqlalchemy import and_ , func , or_
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from pandas import ExcelFile
@@ -323,6 +323,7 @@ class Strategy_Class(BaseModel): #serializer
     strategy_code : str
     strategy_name : str
     strategy_value: str
+    strategy_score : Optional[float] = ...
     attribute_1 : Optional[str] = ...
     attribute_2 : Optional[str] = ...
     attribute_3 : Optional[str] = ...
@@ -426,6 +427,7 @@ class Action_Class(BaseModel): #serializer
     strategy_id : int
     action_name : str
     action_code: str
+    depended_indicator : Optional[int] = ...
     attribute_1 : Optional[str] = ...
     attribute_2 : Optional[str] = ...
     attribute_3 : Optional[str] = ...
@@ -442,7 +444,11 @@ class Action_kpi_Class(BaseModel): #serializer
     id : int
     action_id : int
     kpi_id : int
-    value: float
+    impact_value: float
+    kpi_code : Optional[str] = ...
+    kpi_name : Optional[str] = ...
+    kpi_value : Optional[float] = ...
+    forecast_kpi_value : Optional[float] = ...
     attribute_1 : Optional[str] = ...
     attribute_2 : Optional[str] = ...
     attribute_3 : Optional[str] = ...
@@ -561,10 +567,41 @@ def update_a_domain(id:int,domain_table_item:Domain_Class):
 #domain_data_table endpoints
 ############################
 @app.get('/domain_data_table',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
-def get_all_rows():
+async def get_all_rows():
     items=db.query(impactour_models.Domain_data_Class).all()
 
     return items
+
+@app.get('/domain_data_table/values_and_average/{pilot_id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
+async def get_all_values_and_average(pilot_id:int):
+
+    db_item = db.query(impactour_models.Pilot_Class).filter(impactour_models.Pilot_Class.id == pilot_id).first()
+    if not db_item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Pilot Not Found")
+
+    pilot_indicator_db = db.query(impactour_models.Domain_data_Class).filter(impactour_models.Domain_data_Class.pilot_id == pilot_id).order_by(impactour_models.Domain_data_Class.indicator_id.asc()).all()
+
+
+    if not pilot_indicator_db:
+        return {"Pilot have no data"}
+    
+    for item_row in pilot_indicator_db:
+
+        not_pilot_indicator_db = db.query(impactour_models.Domain_data_Class).filter(and_(impactour_models.Domain_data_Class.pilot_id != pilot_id,
+            impactour_models.Domain_data_Class.indicator_id == item_row.indicator_id)).all()
+
+        indicator_name = db.query(impactour_models.Indicator_Class.indicator_name).filter(impactour_models.Indicator_Class.id == item_row.indicator_id).first()
+
+        not_pilot_value_list = []
+        for not_pilot_value in not_pilot_indicator_db:
+            not_pilot_value_list.append(not_pilot_value.result)
+
+        average_value = np.round(np.average(not_pilot_value_list),0)
+
+        item_row.attribute_1 = average_value
+        item_row.attribute_2 = indicator_name.indicator_name
+
+    return pilot_indicator_db
 
 @app.get('/domain_data_table/indicator_name/{indicator_name}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_rows_by_indicator_name(indicator_name:str):
@@ -687,7 +724,7 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
                     (impactour_models.Indicator_Class.indicator_type)==str(int(VALUE_1_val))).first()
             if not db_item_code:
                 
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=" asdfg sdf Indicator Not Found")
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f" {INDICATOR_val} Indicator Not Found")
             else:
                 new_empty_object.indicator_id = db_item_code.id
         else:
@@ -1043,6 +1080,188 @@ def update_a_kpi(id:int,kpi_table_item:KPI_Class):
 ################################
 #KPI_calculation_table endpoints
 ################################
+
+def to_calculate_kpi(data_list,method_number):
+    if method_number == '1':
+        a = data_list[0]
+        return a
+    elif method_number == '2':
+        a = data_list[0]
+        b = data_list[1]
+        if b == 0:
+            return -10000
+        result = a / b
+        return result
+    if method_number == '3':
+        a = data_list[0]
+        b = data_list[1]
+        result = a * b
+        return result
+    if method_number == '4':
+        a = data_list[0]
+        b = data_list[1]
+        if b == 0:
+            return -10000
+        result = (a / b) * 100
+        return result
+    if method_number == '5':
+        a = data_list[0]
+        b = data_list[1]
+        c = data_list[2]
+        if c == 0:
+            return -10000
+        result = ( a + b ) / c
+        return result
+    if method_number == '6':
+        a = data_list[0]
+        b = data_list[1]
+        c = data_list[2]
+        if c == 0:
+            return -10000
+        result = (( a + b ) / c ) * 100
+        result = a / b
+        return result
+    if method_number == '7':
+        a = data_list[0]
+        b = data_list[1]
+        c = data_list[2]
+        if (b + c) == 0:
+            return -10000
+        result = ( a / (b + c)) * 100
+        return result
+    if method_number == '8':
+        a = data_list[0]
+        b = data_list[1]
+        c = data_list[2]
+        d = data_list[3]
+        if d == 0:
+            return -10000
+        result = (a + b + c) / d
+        return result
+    if method_number == '9':
+        a = data_list[0]
+        b = data_list[1]
+        c = data_list[2]
+        d = data_list[3]
+        if (c + d) == 0:
+            return -10000
+        result = ((a + b) / (c + d)) * 100
+        return result
+    if method_number == '10':
+        a = data_list[0]
+        b = data_list[1]
+        c = data_list[2]
+        d = data_list[3]
+        if d == 0:
+            return -10000
+        result = ((a + b + c) / d) * 100
+        return result
+    if method_number == '11':
+        a = data_list[0]
+        b = data_list[1]
+        c = data_list[2]
+        d = data_list[3]
+        e = data_list[4]
+        f = data_list[5]
+        g = data_list[6]
+        result = (a + b + c + d + e + f + g)
+        return result
+    if method_number == '12':
+        a = data_list[0]
+        b = data_list[1]
+        c = data_list[2]
+        d = data_list[3]
+        e = data_list[4]
+        f = data_list[5]
+        g = data_list[6]
+        h = data_list[7]
+        i = data_list[8]
+        if i == 0:
+            return -10000
+        result = ((a + b + c + d + e + f + g + h) / i)
+        return result
+
+@app.get('/kpi_calculation_table/calculate/{pilot_id}',tags=["KPI_calculation_Table"],status_code=status.HTTP_200_OK)
+def get_rows_by_pilot_name(pilot_id:int):
+
+    pilot_check=db.query(impactour_models.Pilot_Class).filter(impactour_models.Pilot_Class.id==pilot_id).first()
+    if not pilot_check:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Pilot Not Found")
+    
+    kpi_list = db.query(impactour_models.KPI_Class).order_by(impactour_models.KPI_Class.id.asc()).all()
+
+    for one_kpi in kpi_list:
+        
+        indicator_list = db.query(impactour_models.KPI_indicator_Class).filter(impactour_models.KPI_indicator_Class.kpi_id == one_kpi.id).order_by(impactour_models.KPI_indicator_Class.indicator_id.asc()).all()
+
+        domain_data_list = [] #### storing domain_data values i.e. A,B,C ...
+        break_flag = 0
+
+        for one_indicator in indicator_list:
+
+            domain_data_item = db.query(impactour_models.Domain_data_Class).filter(and_(impactour_models.Domain_data_Class.pilot_id == pilot_id,
+                impactour_models.Domain_data_Class.indicator_id == one_indicator.id)).order_by(impactour_models.Domain_data_Class.reference_time.desc()).first()
+
+            if domain_data_item != None:
+                domain_data_list.append(domain_data_item.result)
+            else:
+                break_flag = 1
+                break
+
+        if break_flag:
+            continue
+        else:
+            method_number = one_kpi.attribute_1
+            calculated_kpi_value = to_calculate_kpi(domain_data_list,method_number) ## get value
+
+            if calculated_kpi_value == -10000: ## checking if denominator is zero
+                continue
+            else:
+                calculated_kpi_value = np.round(calculated_kpi_value,0)
+
+            # checking if already exist
+
+            db_item=db.query(impactour_models.KPI_calculation_Class).filter(and_(
+                impactour_models.KPI_calculation_Class.domain_id == one_kpi.domain_id,
+                impactour_models.KPI_calculation_Class.pilot_id == pilot_id,
+                impactour_models.KPI_calculation_Class.kpi_id == one_kpi.id,
+                impactour_models.KPI_calculation_Class.calculated_value == calculated_kpi_value
+                )).first()
+
+            if db_item:
+                continue
+                raise HTTPException(status_code=400,detail="Item already exists with same result")
+            
+            # ---- inserting into DB
+
+            max_id=db.query(impactour_models.KPI_calculation_Class.id).order_by(impactour_models.KPI_calculation_Class.id.desc()).first()
+
+            if max_id == None:
+                id_max = 1
+            else:
+                id_max = max_id.id + 1
+
+            new_calculated_kpi_item=impactour_models.KPI_calculation_Class(
+                id =id_max,
+                domain_id = one_kpi.domain_id,
+                pilot_id = pilot_id,
+                kpi_id = one_kpi.id,
+                calculated_value =  calculated_kpi_value,
+                attribute_1 = '',
+                attribute_2 = '',
+                attribute_3 = '',
+                created_by = 1,
+                created_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                modified_by = 1,
+                modified_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            )
+
+            db.add(new_calculated_kpi_item)
+            db.commit()
+
+    return {"Calculation done!"}
+
+
 @app.get('/kpi_calculation_table',response_model=List[KPI_calculation_Class],tags=["KPI_calculation_Table"],status_code=status.HTTP_200_OK)
 def get_all_rows():
     items=db.query(impactour_models.KPI_calculation_Class).all()
@@ -1288,6 +1507,7 @@ def get_all_action_names():
 
 @app.get('/dss_outcome/strategy_names',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
 def get_all_strategy_names():
+    db=SessionLocal()
     items=db.query(impactour_models.Strategy_Class).all()
     return items
 
@@ -1504,7 +1724,7 @@ def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_
         strategy_new_object = db.query(impactour_models.Strategy_Class).order_by(impactour_models.Strategy_Class.id).all()
 
         for row_final_score_val,att1 in zip(row_final_score,strategy_new_object):
-            att1.attribute_1 = row_final_score_val
+            att1.strategy_score = row_final_score_val
         
         #final_strategy = strategy_new_object.order_by(float(strategy_new_object.attribute_1).desc()).all()
 
@@ -1548,7 +1768,7 @@ def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_
         strategy_new_object = db.query(impactour_models.Strategy_Class).order_by(impactour_models.Strategy_Class.id).all()
 
         for row_final_score_val,att1 in zip(row_final_score,strategy_new_object):
-            att1.attribute_1 = row_final_score_val
+            att1.strategy_score = row_final_score_val
     
     if (row_1_CAN != "") and (row_2_CAN == "") and (row_3_CAN == ""):
         impact_min = []
@@ -1580,7 +1800,7 @@ def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_
         strategy_new_object = db.query(impactour_models.Strategy_Class).order_by(impactour_models.Strategy_Class.id).all()
 
         for row_final_score_val,att1 in zip(row_final_score,strategy_new_object):
-            att1.attribute_1 = row_final_score_val
+            att1.strategy_score = row_final_score_val
 
 
         #final_strategy = strategy_new_object.order_by(float(strategy_new_object.attribute_1).desc()).all()
@@ -1596,21 +1816,33 @@ async def get_action_list_by_strategy_id(strategy_id_1:int, strategy_id_2:int, s
     filter_ids = [strategy_id_1, strategy_id_2, strategy_id_3]
     actions_by_strategy_id = db.query(impactour_models.Action_Class).filter(impactour_models.Action_Class.strategy_id.in_(filter_ids)).all()
     indicator_length = []
+    total_kpi = []
+    strongly_kpi = []
     for one_action in actions_by_strategy_id:
 
-        kpis_by_action_id = db.query(impactour_models.Action_kpi_Class).filter(and_(
+        all_kpis_by_action_id = db.query(impactour_models.Action_kpi_Class).filter(and_(
             impactour_models.Action_kpi_Class.action_id == one_action.id,
-            impactour_models.Action_kpi_Class.value != 0)).order_by(impactour_models.Action_kpi_Class.value.desc()).all()
+            impactour_models.Action_kpi_Class.impact_value != 0)).order_by(impactour_models.Action_kpi_Class.impact_value.desc()).all()
 
-        kpi_filter_id = []
-        for kpis in kpis_by_action_id:
-            kpi_filter_id.append(kpis.kpi_id)
+        total_kpi.append(len(all_kpis_by_action_id))
+
+        strong_kpis_by_action_id = db.query(impactour_models.Action_kpi_Class).filter(and_(
+            impactour_models.Action_kpi_Class.action_id == one_action.id,or_(
+            impactour_models.Action_kpi_Class.impact_value == 2,
+            impactour_models.Action_kpi_Class.impact_value == -2))).order_by(impactour_models.Action_kpi_Class.impact_value.desc()).all()
+
+        strongly_kpi.append(len(strong_kpis_by_action_id))
+
+    #     kpi_filter_id = []
+    #     for kpis in kpis_by_action_id:
+    #         kpi_filter_id.append(kpis.kpi_id)
         
-        indicator_list = db.query(impactour_models.KPI_indicator_Class).filter(impactour_models.KPI_indicator_Class.kpi_id.in_(kpi_filter_id)).all()
-        indicator_length.append(len(indicator_list))
+    #     indicator_list = db.query(impactour_models.KPI_indicator_Class).filter(impactour_models.KPI_indicator_Class.kpi_id.in_(kpi_filter_id)).all()
+    #     indicator_length.append(len(indicator_list))
 
-    for att1,num_val in zip(actions_by_strategy_id,indicator_length):
-        att1.attribute_1 = num_val
+    for one_action,all_kpi,strong_kpi in zip(actions_by_strategy_id,total_kpi,strongly_kpi):
+        one_action.attribute_1 = all_kpi
+        one_action.attribute_2 = strong_kpi
         
     return actions_by_strategy_id
 
@@ -1621,7 +1853,7 @@ async def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:in
 
     kpis_by_action_id=db.query(impactour_models.Action_kpi_Class).filter(and_(
         impactour_models.Action_kpi_Class.action_id.in_(filter_ids),
-        impactour_models.Action_kpi_Class.value != 0)).order_by(impactour_models.Action_kpi_Class.value.desc()).all()
+        impactour_models.Action_kpi_Class.impact_value != 0)).order_by(impactour_models.Action_kpi_Class.impact_value.desc()).all()
     
     kpi_filter_id = []
 
@@ -1631,11 +1863,13 @@ async def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:in
     kpi_new_object = db.query(impactour_models.KPI_Class).filter(impactour_models.KPI_Class.id.in_(kpi_filter_id)).all()
 
     for kpis_by_action,kpi_new_object_name in zip(kpis_by_action_id,kpi_new_object):
-        kpis_by_action.attribute_1 = kpi_new_object_name.kpi_name
+        kpis_by_action.kpi_name = kpi_new_object_name.kpi_name
+        kpis_by_action.kpi_code = kpi_new_object_name.kpi_code
+
 
     kpi_cal_items = db.query(impactour_models.KPI_calculation_Class).filter(impactour_models.KPI_calculation_Class.kpi_id.in_(kpi_filter_id)).all()
 
     for kpis_by_action,kpi_cal_val in zip(kpis_by_action_id,kpi_cal_items):
-        kpis_by_action.attribute_2 = kpi_cal_val.calculated_value
+        kpis_by_action.kpi_value = kpi_cal_val.calculated_value
 
     return kpis_by_action_id
