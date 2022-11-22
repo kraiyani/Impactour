@@ -1185,7 +1185,7 @@ def to_calculate_kpi(data_list,method_number):
         return result
 
 @app.get('/kpi_calculation_table/calculate/{pilot_id}',tags=["KPI_calculation_Table"],status_code=status.HTTP_200_OK)
-def get_rows_by_pilot_name(pilot_id:int):
+def calculate_kpi_by_pilot_id(pilot_id:int):
 
     pilot_check=db.query(impactour_models.Pilot_Class).filter(impactour_models.Pilot_Class.id==pilot_id).first()
     if not pilot_check:
