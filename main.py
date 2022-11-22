@@ -651,18 +651,6 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
 
         new_empty_object = impactour_models.Domain_data_Class()
 
-        # domain_list = db.query(impactour_models.Domain_Class.domain_name).all()
-        # domain_name = ""
-        # for domain in domain_list:
-        #     domain = (str(domain)).lower()
-        #     domain = domain.replace('(','')
-        #     domain = domain.replace(')','')
-        #     domain = domain.replace(',','')
-        #     domain = domain.replace("'","")
-        #     file_name = ((str(upload_file.filename)).lower()).replace("Characterisation","Characterization")
-        #     if domain in file_name:
-        #         domain_name = domain
-
         db_item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==domain_name).first()
         if not db_item:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Domain Not Found")
@@ -676,11 +664,18 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
             new_empty_object.pilot_id = db_item.id
 
         INDICATOR_val =  row["INDICATOR"]
-        if INDICATOR_val == 'Pilot Name' or INDICATOR_val == bad_indicator_name:
+        if INDICATOR_val == 'Pilot Name':
             continue
+        if INDICATOR_val == bad_indicator_name:
+            if row["VALUE 1"] == "Urban":
+                VALUE_1_val = 1
+            else:
+                VALUE_1_val = 2
+        else:
+            VALUE_1_val = row["VALUE 1"]
 
         INDICATOR_CODE_val = row["CODE"]
-        VALUE_1_val = row["VALUE 1"]
+
         REFERENCE_DATE_1_val = row["REFERENCE DATE 1"]
         DATA_SOURCE_1 = row["DATA SOURCE 1"]
         DATA_PRIVACY_val = row["DATA PRIVACY"]
@@ -691,10 +686,6 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
             db_item_code=db.query(impactour_models.Indicator_Class).filter(and_(func.lower(impactour_models.Indicator_Class.indicator_code)==(INDICATOR_CODE_val).lower()),
                     (impactour_models.Indicator_Class.indicator_type)==str(int(VALUE_1_val))).first()
             if not db_item_code:
-                # if INDICATOR_val == 'Type of Site (Urban or Rural/Natural)':
-                #     temp_name=db.query(impactour_models.Indicator_Class).filter(func.lower(impactour_models.Indicator_Class.indicator_name)==("Total Population / Total Area based on Type of Site (Urban or Rural/Natural/Itinerary)").lower()).first()
-                #     new_empty_object.indicator_id = temp_name.id
-                # else:
                 
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=" asdfg sdf Indicator Not Found")
             else:
@@ -762,18 +753,6 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
 
         new_empty_object = impactour_models.Domain_data_Class()
 
-        # domain_list = db.query(impactour_models.Domain_Class.domain_name).all()
-        # domain_name = ""
-        # for domain in domain_list:
-        #     domain = (str(domain)).lower()
-        #     domain = domain.replace('(','')
-        #     domain = domain.replace(')','')
-        #     domain = domain.replace(',','')
-        #     domain = domain.replace("'","")
-        #     file_name = (str(upload_file.filename)).lower()
-        #     if domain in file_name:
-        #         domain_name = domain
-
         db_item=db.query(impactour_models.Domain_Class).filter(func.lower(impactour_models.Domain_Class.domain_name)==domain_name).first()
         if not db_item:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Domain Not Found")
@@ -787,11 +766,18 @@ def create_a_domain_data_using_file(domain_name:str,pilot_name:str,created_by:in
             new_empty_object.pilot_id = db_item.id
 
         INDICATOR_val =  row["INDICATOR"]
-        if INDICATOR_val == 'Pilot Name' or INDICATOR_val == bad_indicator_name:
+        if INDICATOR_val == 'Pilot Name':
             continue
+        if INDICATOR_val == bad_indicator_name:
+            if row["VALUE 1"] == "Urban":
+                VALUE_2_val = 1
+            else:
+                VALUE_2_val = 2
+        else:
+            VALUE_2_val = row["VALUE 2"]
 
         INDICATOR_CODE_val = row["CODE"]
-        VALUE_2_val = row["VALUE 2"]
+        
         REFERENCE_DATE_2_val = row["REFERENCE DATE 2"]
         DATA_SOURCE_2 = row["DATA SOURCE 2"]
         DATA_PRIVACY_val = row["DATA PRIVACY"]
@@ -1599,8 +1585,10 @@ def get_all_strategy_names(site_type_name:str,dss_row_1:Get_DSS_input_Class,dss_
 
         #final_strategy = strategy_new_object.order_by(float(strategy_new_object.attribute_1).desc()).all()
 
-        
-    return strategy_new_object
+    if row_1_CAN != "":
+        return strategy_new_object
+    else:
+        return 
 
 @app.get('/dss_outcome/get_action_list_by_strategy_id',tags=["DSS_Outcome"],status_code=status.HTTP_200_OK)
 async def get_action_list_by_strategy_id(strategy_id_1:int, strategy_id_2:int, strategy_id_3:int):
