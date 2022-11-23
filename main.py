@@ -602,7 +602,7 @@ async def get_all_values_and_average(pilot_id:int):
             average_value = 0
 
         item_row.attribute_1 = average_value
-        item_row.attribute_2 = indicator_name.indicator_name
+        # item_row.attribute_2 = indicator_name.indicator_name
 
     return pilot_indicator_db
 
@@ -1875,11 +1875,13 @@ async def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:in
         temp_kpi_name = ''
         temp_kpi_code = ''
         temp_kpi_cal_value = None
+        temp_domain_id = None
 
         for one_kpi_item in kpi_new_object:
             if one_kpi_item.id == temp_kpi_id:
                 temp_kpi_name = one_kpi_item.kpi_name
                 temp_kpi_code = one_kpi_item.kpi_code
+                temp_domain_id = one_kpi_item.domain_id
                 break
 
         for one_kpi_cal_item in kpi_cal_items:
@@ -1890,5 +1892,6 @@ async def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:in
         one_acton_item.kpi_code = temp_kpi_code
         one_acton_item.kpi_name = temp_kpi_name
         one_acton_item.kpi_value = temp_kpi_cal_value
+        one_acton_item.attribute_1 = temp_domain_id
 
     return kpis_by_action_id
