@@ -34,6 +34,8 @@ class Pilot_Class(Base):
     pilot_name = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
     country = Column(String(100), nullable=True)
+    latitude = Column(Float, nullable = True)
+    longitude = Column(Float, nullable = True)
     attribute_1 = Column(String(500), nullable=True)
     attribute_2 = Column(String(500), nullable=True)
     attribute_3 = Column(String(500), nullable=True)
