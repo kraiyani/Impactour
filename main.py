@@ -592,7 +592,7 @@ async def get_all_values_and_average(pilot_id:int):
         not_pilot_indicator_db = db.query(impactour_models.Domain_data_Class).filter(and_(impactour_models.Domain_data_Class.pilot_id != pilot_id,
             impactour_models.Domain_data_Class.indicator_id == item_row.indicator_id)).all()
 
-        indicator_name = db.query(impactour_models.Indicator_Class.indicator_name).filter(impactour_models.Indicator_Class.id == item_row.indicator_id).first()
+        indicator_name_db = db.query(impactour_models.Indicator_Class.indicator_name).filter(impactour_models.Indicator_Class.id == item_row.indicator_id).first()
 
         not_pilot_value_list = []
         for not_pilot_value in not_pilot_indicator_db:
@@ -604,7 +604,7 @@ async def get_all_values_and_average(pilot_id:int):
             average_value = 0
 
         item_row.attribute_1 = average_value
-        # item_row.attribute_2 = indicator_name.indicator_name
+        item_row.attribute_2 = indicator_name_db.indicator_name[:499]
 
     return pilot_indicator_db
 
