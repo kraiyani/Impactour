@@ -1857,7 +1857,7 @@ async def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:in
     kpis_by_action_id=db.query(impactour_models.Action_kpi_Class).filter(and_(
         impactour_models.Action_kpi_Class.action_id.in_(filter_ids),
         impactour_models.Action_kpi_Class.impact_value != 0)).order_by(impactour_models.Action_kpi_Class.impact_value.desc()).all()
-    
+
     kpi_filter_id = []
 
     for kpis in kpis_by_action_id:
@@ -1865,14 +1865,30 @@ async def get_kpi_list_by_action_id(pilot_id:int,action_id_1:int, action_id_2:in
 
     kpi_new_object = db.query(impactour_models.KPI_Class).filter(impactour_models.KPI_Class.id.in_(kpi_filter_id)).all()
 
-    for kpis_by_action,kpi_new_object_name in zip(kpis_by_action_id,kpi_new_object):
-        kpis_by_action.kpi_name = kpi_new_object_name.kpi_name
-        kpis_by_action.kpi_code = kpi_new_object_name.kpi_code
+    kpi_cal_items = db.query(impactour_models.KPI_calculation_Class).filter(and_(impactour_models.KPI_calculation_Class.kpi_id.in_(kpi_filter_id),
+        impactour_models.KPI_calculation_Class.pilot_id == pilot_id)).all()
 
 
-    kpi_cal_items = db.query(impactour_models.KPI_calculation_Class).filter(impactour_models.KPI_calculation_Class.kpi_id.in_(kpi_filter_id)).all()
+    for one_acton_item in kpis_by_action_id:
 
-    for kpis_by_action,kpi_cal_val in zip(kpis_by_action_id,kpi_cal_items):
-        kpis_by_action.kpi_value = kpi_cal_val.calculated_value
+        temp_kpi_id = one_acton_item.kpi_id
+        temp_kpi_name = ''
+        temp_kpi_code = ''
+        temp_kpi_cal_value = None
+
+        for one_kpi_item in kpi_new_object:
+            if one_kpi_item.id == temp_kpi_id:
+                temp_kpi_name = one_kpi_item.kpi_name
+                temp_kpi_code = one_kpi_item.kpi_code
+                break
+
+        for one_kpi_cal_item in kpi_cal_items:
+            if one_kpi_cal_item.kpi_id == temp_kpi_id:
+                temp_kpi_cal_value = one_kpi_cal_item.calculated_value
+                break
+
+        one_acton_item.kpi_code = temp_kpi_code
+        one_acton_item.kpi_name = temp_kpi_name
+        one_acton_item.kpi_value = temp_kpi_cal_value
 
     return kpis_by_action_id
