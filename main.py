@@ -1,6 +1,6 @@
-from fastapi import FastAPI,status,HTTPException, UploadFile, File
 from pydantic import BaseModel
 from typing import Optional,List
+from fastapi import FastAPI,status,HTTPException, UploadFile, File
 from impactour_database import SessionLocal
 import impactour_models
 from datetime import datetime
@@ -592,7 +592,7 @@ async def get_all_values_and_average(pilot_id:int):
         not_pilot_indicator_db = db.query(impactour_models.Domain_data_Class).filter(and_(impactour_models.Domain_data_Class.pilot_id != pilot_id,
             impactour_models.Domain_data_Class.indicator_id == item_row.indicator_id)).all()
 
-        indicator_name_db = db.query(impactour_models.Indicator_Class.indicator_name).filter(impactour_models.Indicator_Class.id == item_row.indicator_id).first()
+        indicator_name_db = db.query(impactour_models.Indicator_Class).filter(impactour_models.Indicator_Class.id == item_row.indicator_id).first()
 
         not_pilot_value_list = []
         for not_pilot_value in not_pilot_indicator_db:
@@ -604,7 +604,10 @@ async def get_all_values_and_average(pilot_id:int):
             average_value = 0
 
         item_row.attribute_1 = average_value
-        item_row.attribute_2 = indicator_name_db.indicator_name[:499]
+        if len(indicator_name_db.indicator_name) > 400:
+            item_row.attribute_2 = indicator_name_db.indicator_name[:499]
+        else:
+            item_row.attribute_2 = indicator_name_db.indicator_name
 
     return pilot_indicator_db
 
@@ -623,21 +626,21 @@ def get_rows_by_indicator_name(indicator_name:str):
 def get_rows_by_pilot_id(pilot_id:int):
     items=db.query(impactour_models.Domain_data_Class).filter(impactour_models.Domain_data_Class.pilot_id==pilot_id).all()
     if not items:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=" pilot data not found")
     return items
 
 @app.get('/domain_data_table/domain_id/{domain_id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_rows_by_domain_id(domain_id:int):
     items=db.query(impactour_models.Domain_data_Class).filter(impactour_models.Domain_data_Class.domain_id==domain_id).all()
     if not items:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="pilot data not found")
     return items
 
 @app.get('/domain_data_table/domain_and_pilot_id/{domain_id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
 def get_rows_by_domain_and_pilot_id(domain_id:int,pilot_id:int):
     items=db.query(impactour_models.Domain_data_Class).filter(and_(impactour_models.Domain_data_Class.domain_id==domain_id,impactour_models.Domain_data_Class.pilot_id==pilot_id)).all()
     if not items:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Resource Not Found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="pilot data not found")
     return items
 
 @app.get('/domain_data_table/data_access_type_id/{data_access_type_id}',tags=["Domain_Data_Table"],status_code=status.HTTP_200_OK)
@@ -1085,6 +1088,48 @@ def update_a_kpi(id:int,kpi_table_item:KPI_Class):
 ################################
 #KPI_calculation_table endpoints
 ################################
+
+@app.get('/kpi_calculation_table/domain_id_and_pilot_id/',tags=["KPI_calculation_Table"],status_code=status.HTTP_200_OK)
+async def get_all_values_and_average_of_kpi(domain_id:int,pilot_id:int):
+    db_item = db.query(impactour_models.Pilot_Class).filter(impactour_models.Pilot_Class.id == pilot_id).first()
+    if not db_item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Pilot Not Found")
+
+    db_item = db.query(impactour_models.Domain_Class).filter(impactour_models.Domain_Class.id == domain_id).first()
+    if not db_item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Domain Not Found")
+
+    all_kpi_list_db = db.query(impactour_models.KPI_Class).filter(impactour_models.KPI_Class.domain_id == domain_id).order_by(impactour_models.KPI_Class.id.asc()).all()
+
+    pilot_cal_kpi_db = db.query(impactour_models.KPI_calculation_Class).filter(and_(impactour_models.KPI_calculation_Class.pilot_id == pilot_id,
+        impactour_models.KPI_calculation_Class.domain_id == domain_id)).order_by(impactour_models.KPI_calculation_Class.id.asc()).all()
+
+    for item_row_kpi in all_kpi_list_db:
+
+        temp_pilot_cal_value = 0
+        temp_pilot_avg_cal_value = 0
+
+        for item_row_pilot_cal_kpi in pilot_cal_kpi_db:
+            if item_row_pilot_cal_kpi.kpi_id == item_row_kpi.id:
+                temp_pilot_cal_value = item_row_pilot_cal_kpi.calculated_value
+                break
+
+        not_pilot_cal_kpi_db = db.query(impactour_models.KPI_calculation_Class).filter(and_(impactour_models.KPI_calculation_Class.pilot_id != pilot_id,
+            impactour_models.KPI_calculation_Class.kpi_id == item_row_kpi.id)).all()
+
+        not_pilot_cal_kpi_value_list = []
+        for not_pilot_value in not_pilot_cal_kpi_db:
+            not_pilot_cal_kpi_value_list.append(not_pilot_value.calculated_value)
+
+        if not_pilot_cal_kpi_value_list:
+            temp_pilot_avg_cal_value = np.round(np.average(not_pilot_cal_kpi_value_list),0)
+
+
+        item_row_kpi.attribute_1 = temp_pilot_cal_value
+        item_row_kpi.attribute_2 = temp_pilot_avg_cal_value
+        
+
+    return all_kpi_list_db
 
 def to_calculate_kpi(data_list,method_number):
     if method_number == '1':
